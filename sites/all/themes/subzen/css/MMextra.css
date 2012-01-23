@@ -1,0 +1,11 @@
+/**
+ * @file
+ * Matt Mowers glue styling
+ *
+ */
+
+
+.attach-float-left {
+float: left;
+width: 400px;
+}
