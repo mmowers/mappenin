@@ -4,19 +4,15 @@
  *
  */
 
-/*
-.attach-float-left {
-  float: left;
-  width: 400px;
-}
-*/
+
 .view-frontmap .view-filters {
   margin-left: 400px;
 }
 
-/*.page-frontmap #page-wrapper {
-  margin-left: 10px;
-}*/
+.page-frontmap #page-wrapper {
+  margin-left: 0px;
+  width: 100%;
+}
 
 #views-exposed-form-frontmap-page-1 .views-widget {
   display: none;
@@ -69,4 +65,22 @@ input#edit-submit-frontmap {
 
 .view-id-frontmap .view-display-id-attachment_1 table{
   margin:0;
+}
+
+/*#block-menu-menu-login-logout .block-title{
+  display: none;
+}*/
+
+#block-menu-menu-login-logout{
+  float: right;
+  margin: 0;
+}
+
+#block-menu-menu-login-logout ul.menu{
+  margin: 0;
+}
+
+#block-menu-menu-login-logout li{
+  display: inline;
+  margin-right: 10px;
 }

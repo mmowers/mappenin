@@ -325,7 +325,7 @@ function _signup_date_reminder_sql($content_type) {
   $start_field = $field['field_name'] . '_value';
 
   // Figure out what TZ we want to do the date comparisons in.
-  $compare_tz = $field['settings']['tz_handling'] == 'none' ? date_default_timezone() : 'UTC';
+  $compare_tz = $field['settings']['tz_handling'] == 'none' ? date_default_timezone_name() : 'UTC';
   // Get a DateAPI SQL handler class for this field.
   $handler = date_field_get_sql_handler($field, $compare_tz);
 
@@ -373,7 +373,7 @@ function _signup_date_autoclose_sql($content_type) {
   $start_field = $field['field_name'] . '_value';
 
   // Figure out what TZ we want to do the date comparisons in.
-  $compare_tz = $field['settings']['tz_handling'] == 'none' ? date_default_timezone() : 'UTC';
+  $compare_tz = $field['settings']['tz_handling'] == 'none' ? date_default_timezone_name() : 'UTC';
   // Get a DateAPI SQL handler class for this field.
   $handler = date_field_get_sql_handler($field, $compare_tz);
 
