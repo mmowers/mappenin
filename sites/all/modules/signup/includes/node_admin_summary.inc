@@ -13,7 +13,7 @@ function signup_node_admin_summary_form($form, &$form_state, $node) {
     $form['status'] = array(
       '#type' => 'item',
       '#title' => t('Signups are'),
-      '#value' => t('Closed (limit reached)'),
+      '#markup' => t('Closed (limit reached)'),
     );
   }
   else {

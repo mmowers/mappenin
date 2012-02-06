@@ -9,6 +9,7 @@
  */
 function signup_views_default_views() {
   // Search the "default_views" directory for files ending in .view.php.
+  $views = array();
   $files = file_scan_directory(drupal_get_path('module', 'signup') . '/views/default_views', '/view.php/');
   foreach ($files as $absolute => $file) {
     if (strpos($file->name, '_vbo_') !== FALSE && !module_exists('views_bulk_operations')) {

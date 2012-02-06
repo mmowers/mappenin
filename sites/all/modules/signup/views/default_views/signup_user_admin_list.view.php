@@ -79,7 +79,7 @@ $handler->override_option('fields', array(
     'id' => 'edit_link',
     'table' => 'signup_log',
     'field' => 'edit_link',
-    'relationship' => 'none',
+    'relationship' => 'nid',
   ),
 ));
 $handler->override_option('arguments', array(

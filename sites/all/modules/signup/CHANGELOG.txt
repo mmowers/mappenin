@@ -1,4 +1,38 @@
 ------------------------
+7.x-1.x-dev
+------------------------
+Bugs fixed since 6.x-1.0:
+= #1128288 by jwilson3: Fixed Incorrect header array key in admin/content/signup.
+= #1175902 by mcarbone: Fixed Reminder fields no longer appearing in 'Default
+  signup information' form.
+= #1190944 by jwilson3: Fixed Notice: Undefined property: stdClass::$language in
+  _signup_date_get_node_scheduler().
+= #1266026 by jwilson3: Fixed Strict warnings in Signup module.
+= #1321474 by sgabe, James Andres: Fixed Signup summary 'Signups are Closed
+  (limit reached)' message disappeared.
+= #1224114 by dalin: Fixed Move signup from admin/content/signups to
+  admin/people/signups.
+= #1266764 by 30equals, mikestefff: Fixed php: Notice: Undefined variable: views in
+  signup_views_default_views().
+= #1212396 by BTMash: Fixed Remove token dependency from
+  signup_send_confirmation_mail().
+= #1297808 by plach: Fixed Reminder watchdog entry always inserted.
+= #1212096 by BTMash: Fixed Use token replacements for broadcast.
+= #1191324 by BTMash | magnusk: Fixed Use token tree UI to show replacement tokens.
+= #1191128 by roborn | magnusk: Fixed Call to undefined function
+  date_default_timezone_name().
+= #1212392 by BTMash, sgabe: Fixed Anonymous username warning.
+= #1358258 by dereine, arh1, benjf | kristiaanvandeneynde: Fixed Updating to
+  Views 7.x-3.0-rc3 breaks Signup module.
+= #1223938 by benjf, sgabe | mariagwyn: Fixed Showing custom signup_user_form()
+  fields in views."
+= #1426028 by sgabe: Fixed Edit signup link is not displaying.
+
+New features since 6.x-1.0:
+= #1112496 by BTMash: Added Show signup in the display ui for a node type.
+
+
+------------------------
 6.x-1.x-dev
 ------------------------
 Bugs fixed since 6.x-1.0:

@@ -147,14 +147,11 @@ function signup_send_broadcast($nid, $subject, $body, $from, $copy = FALSE, $sig
     foreach ($signups as $signup) {
       $user_mail = _signup_get_email($signup);
       $params = array(
-        'subject' => $subject,
-        'body' => $body,
+        'subject' => token_replace($subject, array('node' => $node, 'signup' => $signup, 'global' => NULL)),
+        'body' => token_replace($body, array('node' => $node, 'signup' => $signup, 'global' => NULL)),
         'node' => $node,
         'signup' => $signup,
       );
-      if (module_exists('token')) {
-        $params['body'] = token_replace($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
-      }
       $language = user_preferred_language($signup);
       drupal_mail('signup', 'signup_broadcast_mail', $user_mail, $language, $params, $from);
       watchdog('signup', 'Broadcast email for %title sent to %email.', array('%title' => $node->title, '%email' => $user_mail), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));

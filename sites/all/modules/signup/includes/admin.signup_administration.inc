@@ -83,7 +83,7 @@ function signup_admin_form($form, &$form_state) {
 
   $start_column = signup_admin_form_header();
   if (!empty($start_column)) {
-    array_unshift($header, $start_column);
+    $header = array('start' => $start_column) + $header;
   }
 
   list($sql, $sql_count) = signup_admin_form_sql();
@@ -145,7 +145,7 @@ function signup_admin_form($form, &$form_state) {
  */
 function signup_admin_form_header() {
   if (module_exists('date')) {
-    // If we're using CCK date, we can't sort since the date field used for
+    // If we're using date, we can't sort since the date field used for
     // each content type can come from different tables.
     return array('data' => t('Start'), 'field' => NULL);
   }
@@ -178,6 +178,7 @@ function signup_admin_form_sql() {
       'n.nid',
       'n.title',
       'n.type',
+      'n.language',
       's.status AS signup_status',
       'COUNT(s_l.nid) AS signup_total',
       's.close_signup_limit AS signup_close_signup_limit',

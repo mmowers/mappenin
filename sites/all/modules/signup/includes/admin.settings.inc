@@ -25,7 +25,7 @@ function signup_settings_form($form, &$form_state) {
     '#description' => t('New signup-enabled nodes will start with these settings.'),
     '#collapsible' => TRUE,
   );
-  $form['node_defaults']['signup_node_settings_form'] = signup_node_settings_form(array(), NULL, NULL, signup_site_has_dates());
+  $form['node_defaults']['signup_node_settings_form'] = signup_node_settings_form(array(), array(), NULL, NULL, signup_site_has_dates());
 
   $form['adv_settings'] = array(
     '#type' => 'fieldset',

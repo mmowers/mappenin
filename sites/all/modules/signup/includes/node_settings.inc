@@ -36,6 +36,10 @@ function signup_node_settings_form($form, $form_state, $node = NULL, $node_type 
   // Load the default admin form data for new nodes.
   if (!$node || !$node->signup) {
     $result = db_query("SELECT * FROM {signup} WHERE nid = :nid", array(':nid' => 0))->fetchObject();
+    // Instantiate a node object if necessary.
+    if (!is_object($node)) {
+      $node = new StdClass();
+    }
     $node->signup_forwarding_email = $result->forwarding_email;
     $node->signup_send_confirmation = $result->send_confirmation;
     $node->signup_confirmation_email = $result->confirmation_email;

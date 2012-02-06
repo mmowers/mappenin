@@ -79,10 +79,6 @@ function theme_signup_user_form($variables) {
 /**
  * Returns the value to use for the user name for anonymous signups.
  *
- * WARNING: If you implemented your own version of theme_signup_form_data()
- * that changed or removed the custom 'Name' field and your site
- * allows anonymous signups, you will need to modify this, too.
- *
  * This value is used for the %user_name email token for anonymous users, and
  * also to identify a particular anonymous signup in various places in the UI.
  *
@@ -100,12 +96,10 @@ function theme_signup_anonymous_username($variables) {
   $form_data = $variables['form_data'];
   $email = $variables['email'];
 
-  // In some cases, the best you can do is to use the anonymous user's
-  // supplied email address, in which case, you should uncomment this:
-  //return $email;
+  // Use the name if possible.
+  if (isset($form_data['Name']) && !empty($form_data['Name'])) {
+    return $form_data['Name'];
+  }
 
-  // WARNING: This line is only valid if you left the 'Name' field in
-  // your site's version of theme_signup_user_form().
-  return $form_data['Name'];
+  return $email;
 }
-

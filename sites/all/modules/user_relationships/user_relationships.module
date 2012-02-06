@@ -190,6 +190,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
         $query->condition('ur.rtid', $value, 'NOT IN');
         break;
 
+      case 'rid':
       case 'requester_id':
       case 'requestee_id':
         $twoway_reverse_clause = TRUE;//#479486 these columns automatically should exclude duplicates

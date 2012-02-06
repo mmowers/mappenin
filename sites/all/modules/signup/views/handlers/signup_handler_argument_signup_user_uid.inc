@@ -11,7 +11,7 @@ class signup_handler_argument_signup_user_uid extends views_handler_argument_num
     unset($form['not']);
     unset($form['break_phrase']);
   }
-  function query() {
+  function query($group_by = FALSE) {
     $join = $this->get_join();
     $join->extra[] = array(
       'field' => $this->real_field,

@@ -32,9 +32,8 @@ function _signup_token_help(&$form, $element_name) {
  */
 function _signup_build_token_help() {
   static $help_html = '';
-  if (empty($help_html)) {
-    // TODO: Why can't theme_token_help() be found in this module?!?!
-    $help_html = theme('token_help', array('signup', 'node', 'global'));
+  if (empty($help_html) && module_exists('token')) {
+    $help_html = theme('token_tree', array('token_types' => array('signup', 'node', 'global'), 'click_insert' => TRUE, 'show_restricted' => TRUE));
   }
   return $help_html;
 }

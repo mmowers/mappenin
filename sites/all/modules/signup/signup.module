@@ -305,11 +305,11 @@ function signup_menu() {
     'file path' => $path,
   );
 
-  $items['admin/content/signup'] = array(
+  $items['admin/people/signup'] = array(
     'description' => 'View all signup-enabled posts, and open or close signups on them.',
     'access arguments' => array('administer all signups'),
     'page callback' => 'signup_admin_page',
-    'title' => 'Signup administration',
+    'title' => 'Signups',
     'type' => MENU_LOCAL_TASK,
     'file' => 'admin.signup_administration.inc',
     'file path' => $path,
@@ -852,6 +852,22 @@ function signup_node_load($nodes, $types) {
       $nodes[$signup->nid]->signup = 0;
     }
   }
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function signup_field_extra_fields() {
+  $types = node_type_get_types();
+  $extras = array();
+  foreach ($types as $type => $object) {
+    $extras['node'][$type]['display']['signup'] = array(
+      'label' => t('Signup'),
+      'description' => t('Signup form.'),
+      'weight' => 10,
+    );
+  }
+  return $extras;
 }
 
 /**
@@ -1436,14 +1452,11 @@ function signup_send_confirmation_mail($signup, $node) {
   }
   $node_type_name = node_type_get_name($node->type);
   $params = array(
-    'subject' => t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title)),
-    'body' => $node->signup_confirmation_email,
+    'subject' => token_replace('Signup confirmation for [node:content-type]: [node:title]', array('node' => $node, 'signup' => $signup)),
+    'body' => token_replace($node->signup_confirmation_email, array('node' => $node, 'signup' => $signup, 'global' => NULL)),
     'node' => $node,
     'signup' => $signup,
   );
-  if (module_exists('token')) {
-    $params['body'] = token_replace($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
-  }
   $language = user_preferred_language($signup);
   return drupal_mail('signup', 'signup_confirmation_mail', $user_mail, $language, $params);
 }

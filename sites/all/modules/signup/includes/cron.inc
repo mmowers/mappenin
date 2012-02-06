@@ -62,8 +62,10 @@ function _signup_cron_send_reminders() {
           $params['body'] = token_replace($params['body'], array('node' => node_load($node->nid), 'signup' => $signup, 'global' => NULL));
         }
         $language = user_preferred_language($signup);
-        drupal_mail('signup', 'signup_reminder_mail', $user_mail, $language, $params, $from);
-        watchdog('signup', 'Reminder for %title sent to %user_mail.', array('%title' => $node->title, '%user_mail' => $user_mail), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));
+        $message = drupal_mail('signup', 'signup_reminder_mail', $user_mail, $language, $params, $from);
+        if ($message['result']) {
+          watchdog('signup', 'Reminder for %title sent to %user_mail.', array('%title' => $node->title, '%user_mail' => $user_mail), WATCHDOG_NOTICE, l(t('view'), 'node/' . $node->nid));
+        }
       }
 
       // Reminders for this node are all sent, so mark it in the
