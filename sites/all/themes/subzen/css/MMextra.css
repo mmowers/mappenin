@@ -1,71 +1,15 @@
 /**
  * @file
- * Matt Mowers glue styling
+ * Matt Mowers glue styling for common
  *
  */
 
 
-.view-frontmap .view-filters {
-  margin-left: 400px;
-}
 
-.page-frontmap #page-wrapper {
-  margin-left: 0px;
-  width: 100%;
-}
-
-#views-exposed-form-frontmap-page-1 .views-widget {
-  display: none;
-}
-
-#views-exposed-form-frontmap-page-1 div#edit-tid-wrapper:hover .views-widget {
-  display: block;
-  position: absolute;
-  z-index: 10;
-  background: white;
-  opacity: 1;
-}
-
-
-
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-wrapper:hover .views-widget {
-  display: block;
-  position: absolute;
-  z-index: 10;
-  background: white;
-  opacity: 1;
-}
-
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-wrapper:hover .views-widget .container-inline-date .form-item .form-item {
-  clear: both;
-}
-
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-1-wrapper:hover .views-widget {
-  display: block;
-  position: absolute;
-  z-index: 10;
-  background: white;
-  opacity: 1;
-}
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-1-wrapper:hover .views-widget .container-inline-date .form-item .form-item {
-  clear: both;
-}
-
-input#edit-submit-frontmap {
-  margin-top: 0;
-}
 #header {
   background-color: #008040;
 }
 
-.view-id-frontmap .view-display-id-attachment_1{
-  float: left;
-  width: 400px;
-}
-
-.view-id-frontmap .view-display-id-attachment_1 table{
-  margin:0;
-}
 
 /*#block-menu-menu-login-logout .block-title{
   display: none;

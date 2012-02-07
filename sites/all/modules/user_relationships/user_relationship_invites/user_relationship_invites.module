@@ -73,7 +73,7 @@ function user_relationship_invites_invite($op, $args) {
  * Implements hook_user().
 */
 function user_relationship_invites_form_user_register_form_alter(&$form, &$form_state) {
-  if (($code = $_SESSION[INVITE_SESSION]) && ($invite = user_relationship_invites_get_invite($code)) && $invite->relationship_type) {
+  if (!empty($_SESSION[INVITE_SESSION]) && ($code = $_SESSION[INVITE_SESSION]) && ($invite = user_relationship_invites_get_invite($code)) && $invite->relationship_type) {
 
     $form = array();
     $inviter = $invite->inviter;

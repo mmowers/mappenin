@@ -67,15 +67,19 @@
  * @param $hook
  *   The name of the template being rendered ("html" in this case.)
  */
-/* -- Delete this line if you want to use this function
-function subzen_preprocess_html(&$variables, $hook) {
-  $variables['sample_variable'] = t('Lorem ipsum.');
+
+// MRM I'm using it without deleting the line
+function subzen_preprocess_html(&$variables,$hook) {
+  //MRM copying from dgd7 page 344 to add conditional stylesheet for frontmap
+  if($variables['is_front']){
+    drupal_add_css(path_to_theme() . '/css/MMextra-front.css', array('weight' => CSS_THEME));
+  }
 
   // The body tag's classes are controlled by the $classes_array variable. To
   // remove a class from $classes_array, use array_diff().
   //$variables['classes_array'] = array_diff($variables['classes_array'], array('class-to-remove'));
 }
-// */
+
 
 /**
  * Override or insert variables into the page templates.
