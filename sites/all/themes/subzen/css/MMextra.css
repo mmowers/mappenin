@@ -4,6 +4,9 @@
  *
  */
 
+.block {
+   margin-bottom: 0px;
+}
 
 
 #header {
@@ -27,4 +30,8 @@
 #block-menu-menu-login-logout li{
   display: inline;
   margin-right: 10px;
+}
+
+.page-user #page-title {
+  display: none;
 }

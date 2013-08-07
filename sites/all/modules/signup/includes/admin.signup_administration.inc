@@ -5,7 +5,7 @@
  */
 
 /**
- * Print the admin signup overview page located at admin/content/signup.
+ * Print the admin signup overview page located at admin/people/signup.
  */
 function signup_admin_page() {
   $filter_status_form = drupal_get_form('signup_filter_status_form');
@@ -42,7 +42,6 @@ function signup_filter_status_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => t('Filter'),
   );
-  //  $form_state['#redirect'] = FALSE;
   return $form;
 }
 
@@ -57,91 +56,137 @@ function signup_filter_status_form_submit($form, &$form_state) {
  * Form builder for the main form on the signup administration page.
  */
 function signup_admin_form($form, &$form_state) {
-  // Figure out if the current user has permission to use signup broadcast.
-  $access_broadcast = user_access('email all signed up users');
-
+  // Build the sortable table header.
   $header = array(
-    'title' => array(
-      'data' => t('Title'),
-      'field' => 'n.title',
-      'sort' => 'asc',
-    ),
-    'total' => array(
-      'data' => t('Signups'),
-      'field' => 'signup_total',
-    ),
-    'limit' => array(
-      'data' => t('Limit'),
-      'field' => 'signup_close_signup_limit',
-    ),
-    'status' => array(
-      'data' => t('Status'),
-      'field' => 'signup_status',
-    ),
+    'title' => array('data' => t('Title'), 'field' => 'n.title', 'sort' => 'asc'),
+    'total' => array('data' => t('Signups'), 'field' => 'signup_total'),
+    'limit' => array('data' => t('Limit'), 'field' => 'signup_close_signup_limit'),
+    'status' => array('data' => t('Status'), 'field' => 'signup_status'),
     'operations' => array('data' => t('Operations')),
   );
-
+ 
   $start_column = signup_admin_form_header();
   if (!empty($start_column)) {
-    $header = array('start' => $start_column) + $header;
+   $header = array('start' => $start_column) + $header;
   }
 
-  list($sql, $sql_count) = signup_admin_form_sql();
-
-  $result = db_query_range($sql, 0, 25);
-
-  // Loop through the signup nodes, and generate our form elements
-  $rows = array();
-  foreach ($result as $signup_node) {
-    $row = array();
-    if (!empty($start_column)) {
-      $row['start'] = signup_admin_form_extra($signup_node);
-    }
-    // Instead of duplicating the logic from the node/N/signups admin
-    // form, we just call that form builder here and lift the elements
-    // we need directly from that.
-    module_load_include('inc', 'signup', 'includes/node_admin_summary');
-    $new_form_state = array();
-    $node_admin_form = signup_node_admin_summary_form(array(), $new_form_state, $signup_node);
-    $row['title'] = array(
-      'data' => array(
-        '#type' => 'link',
-        '#title' => $signup_node->title,
-        '#href' => "node/$signup_node->nid",
-      ),
+  // Prepare the list of nodes.
+  $nodes = signup_admin_form_query($header);
+  $destination = drupal_get_destination();
+  $options = array();
+  foreach ($nodes as $node) {
+    $form['limit'][$node->nid] = array(
+      '#type' => 'textfield',
+      '#title' => t('Limit'),
+      '#title_display' => 'invisible',
+      '#default_value' => $node->signup_close_signup_limit,
+      '#size' => 3,
     );
-    $row['status']['data'] = $node_admin_form['status'];
-    unset($row['status']['data']['#title']);
-    $row['total'] = $signup_node->signup_total;
-    $row['limit']['data'] = $node_admin_form['limit'];
-    unset($row['limit']['data']['#title']);
-    $op_links = l(t('View signups'), "node/$signup_node->nid/signups");
-    if ($access_broadcast) {
-      $op_links .= '<br />';
-      $options['attributes']['title'] = t('Send an email message to all users who signed up.');
-      $op_links .= l(t('Signup broadcast'), "node/$signup_node->nid/signups/broadcast", $options);
+    $form['status'][$node->nid] = array(
+      '#type' => 'select',
+      '#title' => t('Status'),
+      '#title_display' => 'invisible',
+      '#options' => array(
+        0 => t('Closed'),
+        1 => t('Open'),
+       ),
+      '#default_value' => $node->signup_status,
+    );
+    $options[$node->nid] = array(
+      'start' => signup_format_date($node),
+      'title' => array(
+        'data' => array(
+          '#type' => 'link', 
+          '#title' => check_plain($node->title), 
+          '#href' => 'node/' . $node->nid, 
+        ),
+      ),
+      'total' => $node->signup_total,
+      'limit' => $node->signup_close_signup_limit,
+      'status' => $node->signup_status ? t('Open') : t('Closed'),
+    );
+
+    // Build a list of all the accessible operations for the current node.
+    $operations = array();
+    $operations['view'] = array(
+      'title' => t('View signups'), 
+      'href' => 'node/' . $node->nid . '/signups', 
+      'query' => $destination,
+    );
+    if (user_access('email all signed up users')) {
+      $operations['broadcast'] = array(
+        'title' => t('Broadcast'), 
+        'href' => 'node/' . $node->nid . '/signups/broadcast', 
+        'query' => $destination,
+      );
     }
-    $row['operations'] = $op_links;
-    $rows[$signup_node->nid] = $row;
-  }
-  $form['#tree'] = TRUE;
-  $form['nids'] = array(
+
+    $options[$node->nid]['operations'] = array();
+    if (count($operations) > 1) {
+      // Render an unordered list of operations links.
+      $options[$node->nid]['operations'] = array(
+        'data' => array(
+          '#theme' => 'links__node_operations', 
+          '#links' => $operations, 
+          '#attributes' => array('class' => array('links', 'inline')),
+        ),
+      );
+    }
+    elseif (!empty($operations)) {
+      // Render the first and only operation as a link.
+      $link = reset($operations);
+      $options[$node->nid]['operations'] = array(
+        'data' => array(
+          '#type' => 'link', 
+          '#title' => check_plain($link['title']), 
+          '#href' => $link['href'], 
+          '#options' => array('query' => $link['query']),
+        ),
+      );
+     }
+   }
+
+  $form['nodes'] = array(
     '#type' => 'tableselect',
     '#header' => $header,
-    '#options' => $rows,
-    '#empty' => t('No signups available.'),
+    '#options' => $options,
+    '#empty' => t('No content available.'),
   );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Update'),
   );
+
   $form['pager'] = array('#markup' => theme('pager'));
+
+  $form['#tree'] = TRUE;
+  $form['#after_build'] = array('signup_admin_form_after_build');
+
+  return $form;
+}
+
+/*
+ * Move some form elements to their right place.
+ */
+function signup_admin_form_after_build($form) {
+  $limit = $form['limit'];
+  $status = $form['status'];
+  $options = $form['nodes']['#options'];
+
+  foreach ($options as $nid => $node) {
+    $options[$nid]['limit'] = array('data' => $limit[$nid]);
+    $options[$nid]['status'] = array('data' => $status[$nid]);
+  }
+
+  $form['nodes']['#options'] = $options;
+  unset($form['limit'], $form['status']);
+
   return $form;
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Helper function to determine if we need to display a date for the events.
  */
 function signup_admin_form_header() {
   if (module_exists('date')) {
@@ -158,86 +203,64 @@ function signup_admin_form_header() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * The database query to get the needed information of nodes with signups. 
  */
-function signup_admin_form_extra($signup_node) {
-  return array(
-    '#markup' => signup_format_date($signup_node),
-  );
+function signup_admin_form_query($header) {
+  $query = db_select('node', 'n')->extend('PagerDefault')->extend('TableSort');
+
+  if (isset($_SESSION['signup_status_filter']) && $_SESSION['signup_status_filter'] != 'all') {
+    $status = ($_SESSION['signup_status_filter'] == 'open') ? 1 : 0;
+    $query->condition('s.status', $status);
+   }
+
+  $query->innerJoin('signup', 's', 's.nid = n.nid');
+  $query->leftJoin('signup_log', 's_l', 's.nid = s_l.nid');
+
+  $query->fields('n', array('nid', 'title', 'type', 'language'));
+
+  $query->addField('s', 'status', 'signup_status');
+  $query->addField('s', 'close_signup_limit', 'signup_close_signup_limit');
+
+  $query->addExpression('COUNT(s_l.nid)', 'signup_total');
+
+  $query->groupBy('nid');
+  $query->groupBy('title');
+  $query->groupBy('type');
+  $query->groupBy('signup_status');
+  $query->groupBy('signup_close_signup_limit');
+
+  // Get the right query elements from the currently installed scheduler backend.
+  foreach (signup_content_types() as $content_type) {
+    signup_admin_query($query, $content_type);
+  }
+
+  $nodes = $query
+    ->limit(25)
+    ->orderByHeader($header)
+    ->execute();
+
+  return $nodes;
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
- */
-function signup_admin_form_sql() {
-  $admin_common_sql = array(
-    'primary' => '{node} n',
-    'fields' => array(
-      'n.nid',
-      'n.title',
-      'n.type',
-      'n.language',
-      's.status AS signup_status',
-      'COUNT(s_l.nid) AS signup_total',
-      's.close_signup_limit AS signup_close_signup_limit',
-    ),
-    'group_by' => array(
-      'n.nid',
-      'n.title',
-      'n.type',
-      'signup_status',
-      'signup_close_signup_limit',
-    ),
-    'joins' => array(
-      'INNER JOIN {signup} s ON s.nid = n.nid',
-      'LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid',
-    ),
-  );
-
-  $type = $_SESSION['signup_status_filter'];
-  if ($type == 'open') {
-    $filter_status = 1;
-  }
-  elseif ($type == 'closed') {
-    $filter_status = 0;
-  }
-  if (isset($filter_status)) {
-    $admin_common_sql['where'] = array("s.status = $filter_status");
-  }
-
-  // Get the right query elements from the currently installed backend
-  $admin_sql = array();
-  foreach (signup_content_types() as $type) {
-    $admin_sql = array_merge_recursive($admin_sql, signup_admin_sql($type));
-  }
-
-  // Build the main query.
-  $sql = _signup_build_query($admin_common_sql, $admin_sql);
-
-  // Construct the proper pager query using just the WHERE clauses (if any).
-  $all_fragments = array_merge_recursive($admin_common_sql, $admin_sql);
-  $sql_count = "SELECT COUNT(s.nid) FROM {signup} s";
-  if (!empty($all_fragments['where'])) {
-    $sql_count .= ' WHERE ' . implode(' AND ', $all_fragments['where']);
-  }
-
-  // TODO: This should be a dynamic query tagged 'node_access'.
-  return array($sql, $sql_count);
-  // return array(db_rewrite_sql($sql), db_rewrite_sql($sql_count, 's'));
-}
-
-/**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Form submission handler for signup_admin_form().
+ *
+ * @see signup_admin_form()
  */
 function signup_admin_form_submit($form, &$form_state) {
+  $limit = $form_state['values']['limit'];
+  $status = $form_state['values']['status'];
+  $nodes = $form_state['values']['nodes'];
+
   module_load_include('inc', 'signup', 'includes/node_admin_summary');
-  foreach ($form_state['values']['nids'] as $nid => $values) {
-    $values['nid'] = $nid;
-    $temp_state['values'] = $values;
-    signup_node_admin_summary_form_submit($form, $temp_state);
+  foreach ($nodes as $nid => $selected) {
+    if ($selected) {
+      $temp_state['values'] = array(
+        'nid' => $nid,
+        'limit' => $limit[$nid],
+        'status' => $status[$nid],
+      );
+      signup_node_admin_summary_form_submit($form, $temp_state);
+    }
   }
 }
-

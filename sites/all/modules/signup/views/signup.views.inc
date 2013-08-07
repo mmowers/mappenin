@@ -144,8 +144,9 @@ function signup_views_data() {
     ),
   );
 
-  // Define base group for signup_log table.
+  // Define base group and entity type for signup_log table.
   $data['signup_log']['table']['group'] = t('Signup');
+  $data['signup_log']['table']['entity type'] = 'node';
 
   // Advertise this table as a possible base table so that we can have
   // "Signup" views. This is essential for Views Bulk Operations to work,

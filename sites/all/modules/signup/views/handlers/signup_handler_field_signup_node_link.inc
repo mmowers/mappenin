@@ -9,10 +9,21 @@ class signup_handler_field_signup_node_link extends views_handler_field_node_lin
       'table' => 'node',
       'field' => 'uid',
     );
+    $this->additional_fields['nid'] = array(
+      'table' => 'node',
+      'field' => 'nid',
+    );
     $this->additional_fields['signup_status'] = array(
       'table' => 'signup',
       'field' => 'status',
     );
+  }
+
+  function option_definition() {
+    $options = parent::option_definition();
+    $options['tab'] = array('default' => '');
+    $options['destination'] = array('default' => '');
+    return $options;
   }
 
   function options_form(&$form, &$form_state) {

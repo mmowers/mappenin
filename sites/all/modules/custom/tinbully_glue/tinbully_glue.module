@@ -1,0 +1,1784 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function tinbully_glue_menu() {
+  $items['user/new-venue'] = array(
+    'title' => 'New Venue',
+    'type' => MENU_LOCAL_TASK,
+    'access callback' => TRUE,
+    'page callback' => 'new_venue_page',
+  );
+/*  $items['user/new-user'] = array(
+    'title' => 'New User',
+    'type' => MENU_LOCAL_TASK,
+    'access callback' => TRUE,
+    'page callback' => 'new_user_page',
+    'weight' => 10,
+  );
+ */
+  $items['friends/requests'] = array(
+    'title' => 'Request',
+    'type' => MENU_LOCAL_TASK,
+    'access callback' => 'user_relationships_ui_check_access',
+    'access arguments' => array('approve'),
+    'page callback' => 'friend_requests_page',
+    'weight' => '5',
+  );
+//  $items['node/%node/attendees'] = array(
+//    'title' => 'Attendees',
+//    'access callback' => '_signup_menu_access',
+//    'access arguments' => array(1, 'any'),
+//    'type' => MENU_LOCAL_TASK,
+//  );
+/*  $items['node/%node/copies'] = array(
+    'access arguments' => array('administer site configuration'),
+    'page callback' => 'custom_clone',
+    'page arguments' => array(1),
+    'title' => 'Make 20 copies',
+    'weight' => 5,
+    'type' => MENU_LOCAL_ACTION,
+  ); */
+  
+//deactivating event invite via email. if this gets reactivated, make sure user->name is replaced with profile name
+  /*
+  $items['node/%node/invite'] = array(
+    'title' => 'Invite',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('event_invite_form'),
+    'access arguments' => array('send invitations'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+  );
+   */
+  $items['invite-friends'] = array(
+    'title' => 'Invite friends to site!',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('invite_friends_form'),
+    'access callback' => array('invite_friends_access'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['node/%node/delete_series'] = array(
+    'title' => 'Are you sure?',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('node_delete_series_confirm', 1),
+    'access callback' => 'node_access',
+    'access arguments' => array('delete', 1),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ * 
+ * Hide the tabs on user page. This is adapted from dgd7 p.508. In addition to
+ * these edits, the signups views ("current" and "available") were set to "no menu entry" rather than
+ * "default menu tab" for current signups and "menu tab" for available signups
+ */
+
+function tinbully_glue_menu_alter(&$items) {
+  $items['user/%user/relationships']['type'] = MENU_CALLBACK;
+  $items['user/%user/edit']['type'] = MENU_CALLBACK;
+  $items['user/%user/edit']['title callback'] = 'tinbully_user_edit_title';
+  $items['user/%user/shortcuts']['type'] = MENU_CALLBACK;
+  $items['user/register']['title'] = 'New User';
+//wait. where is the title for user/password ("New Password") coming from???
+  $items['user/password']['type'] = MENU_CALLBACK;
+  $items['user']['title callback'] = 'tinbully_user_menu_title';
+/* unfuckingbelievable. i am somehow unable to change the "Edit Profile" page-titles with the lines below
+  $items['profile-individual/%profile2_by_uid']['title callback'] = 'tinbully_profile_title';
+  $items['profile-individual/%profile2_by_uid/edit']['title callback'] = 'tinbully_profile_title';
+  $items['profile-venue/%profile2_by_uid']['title callback'] = 'tinbully_profile_title';
+  $items['profile-venue/%profile2_by_uid/edit']['title callback'] = 'tinbully_profile_title';
+*/
+  $items['node/%node/clone']['access arguments'] = FALSE;
+}
+
+function tinbully_user_menu_title() {
+  return t('Login/Register');
+}
+function tinbully_user_edit_title() {
+  return t('Edit Account');
+}
+function tinbully_profile_title() {
+  return t('Edit Profile');
+}
+
+
+function new_venue_page() {
+  return array('#markup' => '<div id="new-venue-register"><p> <strong>Thank you for your interest in mappenin!</strong> We hope'.
+ ' mappenin will allow you to spread word of your events, and that, through your'.
+ ' quality events, you can help us to increase the use and spread of our site!</p><br />'.
+ "<p><strong>To register your venue</strong>, please send an email from <strong>your venue's email address</strong>".
+ ' to <strong>admin@mappenin.com</strong> with these details:</p><ul><strong><li>Name of venue</li><li>Full address of venue</li>'.
+ '<li>Name of contact person</li><li>Phone number</li></strong></ul></div>');
+ //'<p>Thanks again,</p><p>Matt Mowers, creator of mappenin</p></div>');
+}
+/*
+function new_user_page() {
+  return array('#markup' => '<div id="new-venue-register"><p> <strong>Thank you for your interest in mappenin!</strong> At this'.
+ ' time, new user registrations are by invite only.  So tell your friends on mappenin to invite you!</p><br />'.
+ '<p><strong>If you are registering a venue</strong>, please go to the <strong>New Venue</strong> tab.</p>'.
+ '<br /><p>Thanks,</p><p>Matt Mowers, creator of mappenin</p></div>');
+}
+*/
+function friend_requests_page() {
+  global $user;
+  if (!is_object($user) || !$user->uid) {
+    return MENU_NOT_FOUND;
+  }
+ 
+  $options = array(
+    'include_user_info' => TRUE,
+    'paging' => variable_get('user_relationships_relationships_per_page', 16),
+  );
+  $relationships = user_relationships_load(array('requestee_id' => $user->uid, 'approved' => FALSE), $options);
+  $rows = array();
+  foreach ($relationships as $relationship) {
+    $profile = profile2_load_by_user($relationship->requester);
+    if(!empty($profile['individual']->field_name['und'][0]['safe_value'])){
+      $profile_name_link = l($profile['individual']->field_name['und'][0]['safe_value'], 'individual/'.$relationship->requester->uid);     
+    }
+    else{
+      $profile_name_link = l(t('(No name)'),'user/'.$relationship->requester->uid);
+    }
+//    $items[] = theme('username', array('account' => $relationship->requester)).
+    $items[] = $profile_name_link.
+               drupal_render(drupal_get_form('confirm_friend_form', $relationship)).
+               drupal_render(drupal_get_form('decline_friend_form', $relationship));
+//               '<form action="user/'.$user->uid.'/relationships/requested/'.$relationship->rid.'/approve?" > <input type="submit" value="Confirm" /> </form>';
+  }
+  
+  if(empty($items)){
+    $items[] = 'There are no pending friendship requests';
+  }
+ 
+  $output['list'] = array(
+    '#theme' => 'item_list',
+    '#items' => $items,
+    'attributes' => array('class' => array('pending-friend-requests-listing-table')),
+  );
+  $output['pager'] = array(
+    '#markup' => theme('pager'),
+  );
+
+  return $output;
+}
+
+function confirm_friend_form($form, &$form_state, $relationship){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Confirm')
+  );
+  return $form;
+}
+
+function confirm_friend_form_submit($form, &$form_state){
+  $relationship = $form_state['build_info']['args'][0];
+  user_relationships_save_relationship($relationship, 'approve');
+  drupal_set_message(t('Friendship confirmed'));
+}
+
+function decline_friend_form($form, &$form_state, $relationship){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Decline')
+  );
+  return $form;
+}
+
+function decline_friend_form_submit($form, &$form_state){
+  
+  $relationship = $form_state['build_info']['args'][0];
+  global $user;
+  user_relationships_delete_relationship($relationship, $user);
+  drupal_set_message(t('Friend request declined'));
+}
+
+
+/**
+ * Implements hook_block_info()
+ * 
+ * This is a simple test block
+ */
+function tinbully_glue_block_info(){
+  $blocks = array();
+  $blocks['logoT']=array(
+      'info' => t('Capital T logo')
+  );
+  $blocks['searchOptions']=array(
+      'info' => t('Buttons to select search options')
+  );
+  $blocks['mainNavigation']=array(
+      'info' => t('Permanent navigation buttons')
+  );
+  $blocks['mainNavigationVenue']=array(
+      'info' => t('Permanent navigation buttons for venues')
+  );
+  $blocks['loginlogout']=array(
+      'info' => t('login and logout buttons')
+  );
+  $blocks['venueRelationshipControl']=array(
+      'info' => t('Add or remove venue as a favorite venue')
+  );
+  $blocks['friendRelationshipControl']=array(
+      'info' => t('Add or remove friend')
+  );
+  $blocks['SignupControl']=array(
+      'info' => t('Add or remove events from schedule')
+  );
+  $blocks['GoButton']=array(
+      'info' => t('Show Go Site Navigation')
+  );
+  /*facebook like button.  uncomment this if using the like button
+  $blocks['fblikebutton_custom_block']=array(
+      'info' => t('Custom dynamic FB Like button')
+  );
+  */
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view()
+ * 
+ * This is a simple test block
+ */
+function tinbully_glue_block_view($block_name=''){
+  if($block_name == 'logoT'){
+  $blocks['subject'] = '';
+  $blocks['content']= '<p id="logoT"> M </p>';
+  }
+  if($block_name == 'GoButton'){
+  $blocks['subject'] = '';
+  $blocks['content']= '<input type="submit" id="gobutton" value="<" />';
+  }
+  elseif($block_name == 'searchOptions'){
+  $blocks['subject'] = '';
+  $blocks['content']= '<div id="frontmap-search-control">
+                       <input type="submit" id="searchoptions" value="New Search" maxlength="0" />
+                       <input type="submit" id="switchviewbutton" value="List" />
+                       </div>';
+//                       <input type="submit" id="searchoptions" value="Start Search" size="15" />
+  }
+  elseif($block_name == 'mainNavigation'){
+  $blocks['subject'] = '';
+  $blocks['content']=
+  '
+  <form action="/frontmap" method="get"> <input id="main-nav-search-events-button" type="submit" style="height:35px" value="Search
+Events" /> </form>
+  <form action="/search-venues" method="get"> <input id="main-nav-search-venues-button" type="submit" style="height:35px" value="Search
+Venues" /> </form>
+  <form action="/schedule" method="get"> <input id="main-nav-my-sched-button" type="submit" style="height:35px" value="My
+Sched." /> </form>
+  <form action="/node/add/event" method="get"> <input id="main-nav-post-event-button" type="submit" style="height:35px" value="New
+Post" /> </form>
+  <form action="/more" method="get"> <input id="main-nav-more-button" type="submit" style="height:35px" value="More..." /> </form>
+  ';
+  }
+  elseif($block_name == 'mainNavigationVenue'){
+  global $user;
+  $blocks['subject'] = '';
+  $blocks['content']= '<form action="/node/add/event" method="get"> <input id="ven-nav-post-event-button" type="submit" style="height:35px" value="New
+Post" /> </form>
+                       <form action="/my-events" method="get"> <input id="ven-nav-my-events-button" type="submit" style="height:35px" value="My
+Posts" /> </form>
+                       <form action="/fans" method="get"> <input id="ven-nav-my-fans-button" type="submit" style="height:35px" value="My
+Fans" /> </form>
+                       <form action="/profile-venue/'.$user->uid.'/edit" method="get"> <input id="ven-nav-edit-profile-button" type="submit" style="height:35px" value="Edit
+Profile" /> </form>
+                       <form action="/user/'.$user->uid.'/edit" method="get"> <input id="ven-nav-edit-account-button" type="submit" style="height:35px" value="Edit
+Account" /> </form>';
+  }
+  elseif($block_name == 'loginlogout'){
+    $blocks['subject'] = '';
+    global $user;
+    if($user->uid){
+      $blocks['content']= '<form action="/user/logout" method="get"> <input type="submit" value="Logout" /> </form>';
+    }
+    else{
+      $blocks['content']= '<form action="/user/login" method="get"> <input type="submit" value="Login" /> </form>';
+    }
+  }
+  elseif($block_name == 'venueRelationshipControl'){
+    $blocks['subject'] = '';
+    $blocks['content'] = '';
+    $path = current_path();
+    $path_components = explode('/', $path);
+    if($path_components[0] == 'venue'){
+      if($path_components[1] > 0){
+        $account = user_load($path_components[1]);
+        if($account){
+          $rtype = user_relationships_type_load('4');        
+          if(user_relationships_can_receive($account, $rtype)){
+            global $user;
+            if(($user->uid == 0 || user_relationships_can_request($user, $rtype)) && $user->uid <> $account->uid){
+              $existing = user_relationships_load(array('requester_id' => $user->uid, 'requestee_id' => $account->uid, 'rtid' => '4'), array('count' => TRUE));
+              if (!$existing) {
+                $blocks['content'] = drupal_get_form('request_fan_relationship_form',$user->uid, $account->uid);
+              }
+              else{
+                $blocks['content'] = drupal_get_form('delete_fan_relationship_form',$user->uid, $account->uid);
+              }
+/*
+ * using custom query! static though, and should be dynamic.  took this out
+ * because there is user_relationships_load() function. Also the form actions
+ * don't work and I'm using forms now.
+              $num_results = db_query("SELECT rid, approved
+                                   FROM {user_relationships}
+                                   WHERE requester_id = :user_id AND requestee_id = :account_id",
+                                   array(':user_id' => $user->uid,
+                                       ':account_id' => $account->uid)
+              )->rowCount();
+              if($num_results >0){
+                $blocks['content']= '<form action="user/'.($user->uid).'/relationships/'.($account->uid).'remove?destination=venue/'.($account->uid).'" method="post"> <input type="submit" value="Remove this venue from favorites" /> </form>';
+              }
+              elseif($num_results == 0){
+                $blocks['content']= '<form action="/relationship/'.($account->uid).'/request/4?destination=venue/'.($account->uid).'" method="post"> <input type="submit" value="Add this venue to favorites!" /> </form>';
+              }
+*/
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  elseif($block_name == 'friendRelationshipControl'){
+    $blocks['subject'] = '';
+    $blocks['content'] = '';
+    $path = current_path();
+    $path_components = explode('/', $path);
+    if($path_components[0] == 'individual'){
+      if($path_components[1] > 0){
+        $account = user_load($path_components[1]);
+        if($account){
+          $rtype = user_relationships_type_load('2');        
+          if(user_relationships_can_receive($account, $rtype)){
+            global $user;
+            if(($user->uid == 0 || user_relationships_can_request($user, $rtype)) && $user->uid <> $account->uid){
+              $existing = user_relationships_load(array('between' => array($user->uid, $account->uid), 'rtid' => '2'), array('count' => TRUE));
+              if (!$existing) {
+                $blocks['content'] = drupal_get_form('request_friend_relationship_form',$user->uid, $account->uid);
+              }
+              else{
+                $blocks['content'] = drupal_get_form('delete_friend_relationship_form',$user->uid, $account->uid);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  elseif($block_name == 'SignupControl'){
+    $blocks['subject'] = '';
+    $blocks['content'] = '';
+    $path = current_path();
+    $path_components = explode('/', $path);
+    if($path_components[0] == 'node' && is_numeric($path_components[1]) && !$path_components[2]){
+      $node = node_load($path_components[1]);      
+//      if(!empty($node->signup) && user_access('sign up for content')){
+      if(!empty($node->signup) && $node->signup_status == 1){
+        global $user;
+        $result = db_query("SELECT sl.sid FROM {signup_log} sl INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = :uid AND sl.nid = :nid", array(':uid' => $user->uid, ':nid' => $node->nid));
+        $account = $result->fetchObject();
+        if (empty($account)) {
+          $blocks['content'] = drupal_get_form('custom_signup_form',$user->uid, $node->nid);
+        }
+        else{
+          $blocks['content'] = drupal_get_form('custom_signup_cancel_form',$account->sid);
+        }
+      }
+    }
+  }
+  /*facebook like button.  uncomment this if using the like button (dynamically). it uses the url of the page
+  elseif($block_name == 'fblikebutton_custom_block'){
+    $path = isset($_GET['q']) ? $_GET['q'] : '<front>';
+    $webpage_to_like = url($path, array('absolute' => TRUE));
+    $conf = array(
+      'layout' => variable_get('fblikebutton_layout', 'standard'),
+      'action' => variable_get('fblikebutton_action', 'like'),
+      'color_scheme' => variable_get('fblikebutton_color_scheme', 'light'),
+      'show_faces' => variable_get('fblikebutton_show_faces', 'true'),
+      'font' => variable_get('fblikebutton_font', 'arial'),
+      'height' => variable_get('fblikebutton_iframe_height', '80'),
+      'width' => variable_get('fblikebutton_iframe_width', '450'),
+      'send' => variable_get('fblikebutton_send', 'true'),
+      'other_css' => variable_get('fblikebutton_iframe_css', ''),
+      'language' => variable_get('fblikebutton_bl_language', 'en_US'),
+    );
+    $blocks['content'] = _fblikebutton_field($webpage_to_like, $conf);    
+  }
+  */
+
+  return $blocks;
+}
+
+function request_fan_relationship_form($form, &$form_state, $requester, $requestee){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add this venue to favorites')
+  );
+  return $form;
+}
+
+function request_fan_relationship_form_submit($form, &$form_state){
+  $requester = $form_state['build_info']['args'][0];
+  $requestee = $form_state['build_info']['args'][1];
+  if($requester > 0){
+    user_relationships_request_relationship($requester, $requestee,'4');
+    drupal_set_message(t('This venue has been added to your favorites'));
+  }
+  elseif($requester == 0){
+    drupal_goto('user', array('query'=>drupal_get_destination()));
+  }
+}
+
+function delete_fan_relationship_form($form, &$form_state, $requester, $requestee){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove this venue from favorites')
+  );
+  return $form;
+}
+
+function delete_fan_relationship_form_submit($form, &$form_state){
+  
+  $requester = $form_state['build_info']['args'][0];
+  $requestee = $form_state['build_info']['args'][1];
+  $relationships_array = user_relationships_load(array('requester_id' => $requester, 'requestee_id' => $requestee, 'rtid' => '4'));
+  global $user;
+  foreach($relationships_array as $relationship_object){
+    user_relationships_delete_relationship($relationship_object, $user);
+    drupal_set_message(t('This venue has been removed from your favorites'));
+  }
+}
+
+function request_friend_relationship_form($form, &$form_state, $requester, $requestee){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Send friend request')
+  );
+  return $form;
+}
+
+function request_friend_relationship_form_submit($form, &$form_state){
+  $requester = $form_state['build_info']['args'][0];
+  $requestee = $form_state['build_info']['args'][1];
+  if($requester > 0){
+    user_relationships_request_relationship($requester, $requestee,'2');
+    drupal_set_message(t('Friend request has been sent'));
+  }
+  elseif($requester == 0){
+    drupal_goto('user', array('query'=>drupal_get_destination()));
+  }
+}
+
+function delete_friend_relationship_form($form, &$form_state, $requester, $requestee){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove this friend')
+  );
+  return $form;
+}
+
+function delete_friend_relationship_form_submit($form, &$form_state){
+  
+  $requester = $form_state['build_info']['args'][0];
+  $requestee = $form_state['build_info']['args'][1];
+  $relationships_array = user_relationships_load(array('between' => array($requester, $requestee), 'rtid' => '2'));
+  global $user;
+  foreach($relationships_array as $relationship_object){
+    user_relationships_delete_relationship($relationship_object, $user);
+    drupal_set_message(t('This person was removed from friends'));
+  }
+}
+
+function custom_signup_form($form, &$form_state){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add to my schedule')
+  );
+  return $form;
+}
+
+function custom_signup_form_submit($form, &$form_state){
+  $signup_form = array(); 
+  $signup_form['uid'] = $form_state['build_info']['args'][0];
+  $signup_form['nid'] = $form_state['build_info']['args'][1];
+  if($signup_form['uid'] > 0){
+    signup_sign_up_user($signup_form, FALSE);
+    drupal_set_message(t('This event has been added to your schedule'));
+  }
+  elseif($signup_form['uid'] == 0){
+    drupal_goto('user', array('query'=>drupal_get_destination()));
+  }
+}
+
+function custom_signup_cancel_form($form, &$form_state){
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove from my schedule')
+  );
+  return $form;
+}
+
+function custom_signup_cancel_form_submit($form, &$form_state){
+  $sid = $form_state['build_info']['args'][0];
+  signup_cancel_signup($sid, FALSE);
+  drupal_set_message(t('This event has been removed from your schedule'));
+}
+
+/**
+ * Implements hook_user_view().
+ * 
+ * redirect to profile pages, dependent on user type
+ */
+
+//function tinbully_glue_user_view($account, $view_mode, $langcode) {
+//global $user;
+//}
+
+/**
+ * Implements hook_url_inbound_alter().
+ * 
+ * redirect to profile pages, dependent on user type
+ */
+
+function tinbully_glue_url_inbound_alter(&$path, $original_path, $path_language) {
+  global $user;
+  $path_components = explode('/', $path);
+
+  if($path == 'register'){
+    drupal_goto('user/register');
+  }
+
+  //uncomment the following section temporarily on production site. uncommenting this disallows anonymous usage of site.
+  //the reason these are commented on the development version is that drush doesn't run with these redirects    
+/*  
+  if($user->uid == 0){
+    //including the $path != '' here is just a BS hack because I was sent in some redirect loop and this a way to break that loop. 
+    if($path_components[0] != 'user' && $path_components[0] != 'invite' && $path != ''){
+      drupal_goto('user');
+      //drupal_goto('user',array('query'=>drupal_get_destination()));
+      return;
+    }
+  }            
+ */
+  if($path == 'live-music-today'){
+    drupal_goto('frontmap', array('query'=>array('special_query'=>'live_music_today')));
+  }
+  if($path == 'upcoming-live-music'){
+    drupal_goto('frontmap', array('query'=>array('special_query'=>'upcoming_live_music')));
+  }
+  if($path == 'drink-deals-now'){
+    drupal_goto('frontmap', array('query'=>array('special_query'=>'drink_deals_now')));
+  }
+  if($path == 'dgs-taphouse'){
+    drupal_goto('venue/38');
+  }
+  if($path == 'welch-ave-station'){
+    drupal_goto('venue/144');
+  }
+  if($path == 'feedback'){
+    drupal_goto('node/add/feedback');
+  }
+  if($path == 'post'){
+    drupal_goto('node/add/event');
+  }
+  if($path == 'show-nav-options'){
+    drupal_goto('frontmap', array('query'=>array('nav'=>'on')));
+  }
+
+  if($path_components[0]=='user'){
+    if($path_components[1]>0){
+      if(!$path_components[2]){
+        $account = user_load($path_components[1]);
+        if($account->uid == $user->uid){
+          if(in_array("Venue",$account->roles)){
+            drupal_goto('my-events');
+          }
+          elseif(in_array("Individual",$account->roles)){
+            drupal_goto('schedule');
+          }
+        }
+        else{
+          if(in_array("Venue",$account->roles)){
+            //$path = 'venue/'.$path_components[1];
+            drupal_goto('venue/'.$path_components[1]);
+          }
+          elseif(in_array("Individual",$account->roles)){
+            if($user->uid != 0){
+              drupal_goto('individual/'.$path_components[1]);
+              //$path = 'individual/'.$path_components[1];
+            }
+            else{
+                //drupal_goto('user', array('query'=>'individual/'.$path_components[1]));
+                drupal_goto('user', array('query'=>drupal_get_destination()));
+
+            }
+          }
+        }
+      }
+    }
+  }
+  elseif($path_components[0]=='individual' || $path_components[0]=='venue'){
+    if($path_components[1]>0){
+      $account = user_load($path_components[1]);
+      if($account->uid == $user->uid){
+        if(in_array("Venue",$account->roles)){
+          drupal_goto('my-events');
+        }
+        elseif(in_array("Individual",$account->roles)){
+          drupal_goto('schedule');
+        }
+      }
+    }
+  }
+
+  if($path_components[0]=='relationships' || ($path_components[0]=='user' && $path_components[2]=='relationships')){
+    if(in_array("Individual",$user->roles)){
+      drupal_goto('friends/requests');
+    }
+  }
+//this is a first attempt at the permanent redirects for production site
+//  elseif($user->uid == 0){
+//    if(($path_components[0]!='frontmap' &&
+//       $path_components[0]!='venue' &&
+//       $path_components[0]!='search-venues' &&
+//       $path_components[0]!='node')||
+//       $path_components[1]=='add'){
+//      drupal_goto('user', array('query'=>drupal_get_destination()));
+//    }            
+//  }
+}
+
+/**
+ * Implements hook_locationapi().
+ * 
+ * The purpose of this is just to change the two street labels to "street address".
+ * I just copied relevant parts of location_locationapi function and changed street
+ * labels to "street address". Probably not a good way of doing this.
+ */
+function tinbully_glue_locationapi(&$obj, $op, $a3 = NULL, $a4 = NULL, $a5 = NULL) {
+  switch ($op) {
+    case 'fields':
+      return array('name' => t('Location name'), 'street' => t('Street address'), 'additional' => t('Additional'), 'city' => t('City'), 'province' => t('State/Province'), 'postal_code' => t('Postal code'), 'country' => t('Country'), 'locpick' => t('Coordinate Chooser'));
+
+    case 'field_expand':
+      if (is_array($a4)) {
+        $settings = $a4;
+      }
+      else {
+        // On this $op, $a4 is now expected to be an array,
+        // but we make an exception for backwards compatibility.
+        $settings = array('default' => NULL, 'weight' => NULL, 'collect' => $a4, 'widget' => NULL);
+      }
+      switch ($a3) {
+        case 'street':
+          return array(
+            '#type'           => 'textfield',
+            '#title'          => t('Street address'),
+            '#default_value'  => $obj,
+            '#size'           => 64,
+            '#maxlength'      => 255,
+            '#required'       => ($settings['collect'] == 2),
+          );
+
+      }
+      break;
+
+  }
+}
+
+/**
+ * Implements hook_views_pre_build().
+ * 
+ * order of views hooks is: 
+ * pre_view, pre_build, post_build, pre_execute, post_execute, pre_render, post_render
+ */
+ //uncomment this function if we are using a default set of results for frontmap,
+   //as this function will make sure we default to the current time
+function tinbully_glue_views_pre_view(&$view){
+  if($view->name == 'frontmap'){
+    $cur_min = date('i');
+    $adj_min = 0;
+    if($cur_min < 15){
+      $adj_min = 0;
+    } elseif($cur_min < 30){
+      $adj_min = 15;
+    } elseif($cur_min < 45){
+      $adj_min = 30;
+    } else{
+      $adj_min = 45;
+    }
+    $default_start_date = mktime(date("H"),$adj_min,0,date("n"),date("j"),date("Y"));
+    $view->display['default']->display_options['filters']['date_filter']['value']['value'] = date('Y-m-d H:i', $default_start_date);
+    $view->display_handler->default_display->options['filters']['date_filter']['value']['value'] = date('Y-m-d H:i', $default_start_date);
+    $default_end_date = mktime(0,0,0,date("n"),date("j")+1,date("Y"));
+    $view->display['default']->display_options['filters']['date_filter_1']['value']['value'] = date('Y-m-d H:i', $default_end_date);
+    $view->display_handler->default_display->options['filters']['date_filter_1']['value']['value'] = date('Y-m-d H:i', $default_end_date);    
+  }
+  
+  
+}
+
+//not sure if this does anything. i think it's used to show profile names instead of user names. will leave for now, but test later!
+function tinbully_glue_views_pre_build(&$view){
+  if($view->argument['uid']->options['title_enable']==1 &&
+  $view->argument['uid']->options['title']=='%1' &&
+  is_numeric($view->args[0])){
+    $profile = profile2_load_by_user($view->args[0]);
+    if(!empty($profile['venue']->field_ven_name['und'][0]['safe_value'])){
+      $view->argument['uid']->options['title']= $profile['venue']->field_ven_name['und'][0]['safe_value'];        
+    }
+    elseif(!empty($profile['individual']->field_name['und'][0]['safe_value'])){
+      $view->argument['uid']->options['title']= $profile['individual']->field_name['und'][0]['safe_value'];      
+    }
+    else{
+      $view->argument['uid']->options['title']= t('(No name)');
+    }
+  }
+  elseif($view->argument['requester_id']->options['title_enable']==1 &&
+  $view->argument['requester_id']->options['title']=='%1' &&
+  is_numeric($view->args[0])){
+    $profile = profile2_load_by_user($view->args[0]);
+    if(!empty($profile['venue']->field_ven_name['und'][0]['safe_value'])){
+      $view->argument['requester_id']->options['title']= $profile['venue']->field_ven_name['und'][0]['safe_value'];        
+    }
+    elseif(!empty($profile['individual']->field_name['und'][0]['safe_value'])){
+      $view->argument['requester_id']->options['title']= $profile['individual']->field_name['und'][0]['safe_value'];      
+    }
+    else{
+      $view->argument['requester_id']->options['title']= t('(No name)');
+    }
+  }
+}
+/*
+function tinbully_glue_views_query_alter(&$view){
+  $test_var = 1;
+}
+function tinbully_glue_views_post_build(&$view){
+  $test_var = 1;
+}
+function tinbully_glue_views_pre_execute(&$view){
+  $test_var = 1;
+}
+function tinbully_glue_views_post_execute(&$view){
+  $test_var = 1;
+}
+function tinbully_glue_views_pre_render(&$view){
+  $test_var = 1;
+}
+function tinbully_glue_views_post_render(&$view){
+  $test_var = 1;
+  //dsm($view); 
+}
+*/
+function tinbully_glue_tokens_alter(array &$replacements, array $context){
+  if(!empty($replacements['@requester_name']) || !empty($replacements['!requester'])){
+    $test_var = 1;    
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function tinbully_glue_views_api() {
+  return array(
+    'api' => 3, 
+    'path' => drupal_get_path('module', 'tinbully_glue') . '/views' 
+ //   'template path' => drupal_get_path('module', 'tinbully_glue') . 'themes',
+  );
+}
+
+
+
+
+
+/**
+ * Implements hook_form_alter()
+ * 
+ * For some reason this doesn't catch user_register_form???
+ */
+
+//function tinbully_glue_form_alter(&$form, &$form_state, $form_id) {
+//  dsm($form_id);  // uses devel: print form ID to messages
+//  dsm($form);  // uses devel: pretty print array using Krumo to messages
+  
+//  drupal_set_message($form_id);  // print form ID to messages
+//  drupal_set_message(print_r($form, TRUE));  // print array to messages (not pretty)
+
+//}
+
+
+
+/**
+ * Implementations of hook_form_FORMID_alter(). to find form_id use tinbully_glue_form_alter().
+ */
+
+/**
+ * Implements hook_form_user_profile_form_alter()
+ */
+function tinbully_glue_form_user_profile_form_alter(&$form, &$form_state, $form_id) {  
+  $form['account']['name']['#type'] = 'value';
+  
+  $form['#submit'][] = 'user_edit_save_redirect';  
+  
+  /*currently commenting this out because adding data to users is not cool, so I need to find another way to store the input. This works when uncommented, though
+  //add checkbox to form for allowing weekly event reminder emails  
+  if(in_array("Individual",$form['#user']->roles)){
+    $form['event_update_emails'] = array(
+      '#type'           => 'checkbox',
+      '#title'          => t('Receive weekly e-mail updates of upcoming events'),
+      '#default_value'  => isset($form['#user']->data['event_update_emails']) ? $form['#user']->data['event_update_emails'] : TRUE,
+      '#weight'         => 20,
+    );
+  }
+  */
+
+}
+
+/**
+ * Implements hook_user_presave().
+ * 
+ * add event reminder emails setting to user
+ */
+/* currently commenting this out because adding data to users like this is not cool, although I checked and it worked.
+function tinbully_glue_user_presave(&$edit, $account, $category) { 
+  if(in_array("Individual",$account->roles)){
+    $edit['data']['event_update_emails'] = isset($edit['event_update_emails']) ? $edit['event_update_emails'] : FALSE;
+  }
+}
+*/
+
+function user_edit_save_redirect(&$form, &$form_state) {
+  global $user;
+  
+  if(in_array("Venue",$user->roles)){
+    $form_state['redirect'] = 'profile-venue/'.$user->uid.'/edit';
+  }
+  elseif(in_array("Individual",$user->roles)){
+    $form_state['redirect'] = 'profile-individual/'.$user->uid.'/edit';
+  }
+  
+}
+
+/**
+ * Implements hook_form_profile2_edit_individual_form_alter()
+ */
+
+function tinbully_glue_form_profile2_edit_individual_form_alter(&$form, &$form_state, $form_id) {
+  $form['#submit'][] = 'individual_edit_profile_save_redirect';  
+}
+function individual_edit_profile_save_redirect(&$form, &$form_state) {
+  $form_state['redirect'] = 'frontmap';
+  drupal_set_message(t('Welcome! Press the "New Search" button above to find events, or press the green arrow ').
+                       '(<span class="green-arrow-color"><strong>&gt;</strong></span>) '.
+                     t('in the upper right to do anything else, like ').
+                     t('post an event, find friends, or give feedback!'));
+                     //l(t('post an event'), 'node/add/event').', '.
+                     //l(t('find friends'), 'friends').', and '.
+                     //l(t('give feedback'), 'node/add/feedback').'!');
+}
+
+
+/**
+ * Implements hook_form_views_exposed_form_alter()
+ */
+function tinbully_glue_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+//  $path = drupal_get_destination();
+//  $path_components = explode('/', $path['destination']);
+//  $root_path = explode('?', $path_components[0]);
+//  if($root_path[0]=='frontmap'){
+  $path = current_path();
+  $path_components = explode('/', $path);
+  if($path_components[0] == 'frontmap'){
+    $test_var = 4;
+    $default_full_address = 'Stanford University, Stanford, CA';
+    if (isset($_GET['full_address'])) {
+      $_SESSION['full_address'] = $_GET['full_address'];
+    }
+    if (isset($_SESSION['full_address'])) {
+      $default_full_address = $_SESSION['full_address'];
+    }
+    
+//    $descr_custom_address = t('full address or "').
+//            '<a href="#" id="cur-loc-link">'.t('Current Location').'</a>"';
+    $form['full_address'] = array(
+      '#type' => 'hidden',
+//      '#size' => 30,
+      '#default_value' => $default_full_address,
+//      '#description' => $descr_custom_address,
+//      '#weight' => 10,
+//      '#title' => t('Search near:')
+    );
+  }   
+  
+}
+
+
+
+/**
+ * Implements hook_form_user_login_alter()
+ */
+function tinbully_glue_form_user_login_alter(&$form, &$form_state, $form_id) {
+  $form['name']['#description']='';
+  $form['pass']['#description']='If you forgot your password, click '.l('here','user/password');
+  $form['#submit'][] = 'user_login_redirect';
+}
+function user_login_redirect(&$form, &$form_state) {
+  global $user;
+  
+  if(in_array("Venue",$user->roles)){
+    $form_state['redirect'] = 'my-events';
+  }
+  elseif(in_array("Individual",$user->roles)){
+    $form_state['redirect'] = 'frontmap';
+    drupal_set_message(t('Welcome! Press the "New Search" button above to find events, or press the green arrow ').
+                       '(<span class="green-arrow-color"><strong>&gt;</strong></span>) '.
+                     t('in the upper right to do anything else, like ').
+                     t('post an event, find friends, or give feedback!'));
+
+    
+    //this is shitty, but the only way i could figure out how to have a query attached (via url_inbound_alter)
+    //$form_state['redirect'] = 'show-nav-options';
+  }  
+}
+
+/**
+ * Implements hook_form_feedback_node_form_alter()
+ */
+function tinbully_glue_form_feedback_node_form_alter(&$form, &$form_state, $form_id) {
+  $form['#submit'][] = 'feedback_redirect';
+}
+//this redirect is not working.
+function feedback_redirect(&$form, &$form_state) {
+  global $user;
+  
+  if(in_array("Venue",$user->roles)){
+    $form_state['redirect'] = 'my-events';
+  }
+  elseif(in_array("Individual",$user->roles)){
+    $form_state['redirect'] = 'frontmap';
+  }  
+  drupal_set_message(t('Thank you for your feedback!'));
+}
+
+
+/**
+ * Implements hook_form_event_node_form_alter()
+ */
+function tinbully_glue_form_event_node_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  $profile = profile2_load_by_user($user);
+  $profile_street = '';
+  $profile_city = 'Stanford';
+  $profile_state = 'CA';
+  if(!empty($profile['individual'])){
+    /* this section is being commented now that I am using stanford for individuals
+    if(!empty($profile['individual']->field_def_loc['und'][0]['street'])){
+      $profile_street = $profile['individual']->field_def_loc['und'][0]['street'];
+    }
+    if(!empty($profile['individual']->field_def_loc['und'][0]['city'])){
+      $profile_city = $profile['individual']->field_def_loc['und'][0]['city'];
+    }
+    if(!empty($profile['individual']->field_def_loc['und'][0]['province'])){
+      $profile_state = $profile['individual']->field_def_loc['und'][0]['province'];
+    }
+    */
+  }
+  elseif(!empty($profile['venue'])){
+    if(!empty($profile['venue']->field_ven_loc['und'][0]['street'])){
+      $profile_street = $profile['venue']->field_ven_loc['und'][0]['street'];
+    }
+    if(!empty($profile['venue']->field_ven_loc['und'][0]['city'])){
+      $profile_city = $profile['venue']->field_ven_loc['und'][0]['city'];
+    }
+    if(!empty($profile['venue']->field_ven_loc['und'][0]['province'])){
+      $profile_state = $profile['venue']->field_ven_loc['und'][0]['province'];
+    }
+    $form['field_location']['und']['0']['#description'] = '<div id="edit-default-location">'.t("To edit your default location, go to !url.", array('!url' => l(t('Edit Profile'), "profile-venue/$user->uid/edit"))).'</div>';
+  }
+  if(empty($form['field_location']['und']['0']['#default_value']['street']) && !empty($profile_street)){
+    $form['field_location']['und']['0']['#default_value']['street']=$profile_street;  
+  }
+  if(empty($form['field_location']['und']['0']['#default_value']['city']) && !empty($profile_city)){
+    $form['field_location']['und']['0']['#default_value']['city']=$profile_city;  
+  }
+  if(empty($form['field_location']['und']['0']['#default_value']['province']) && !empty($profile_state)){
+    $form['field_location']['und']['0']['#default_value']['province']=$profile_state;  
+  }  
+
+  $form['title']['#maxlength'] =  50;
+  
+  
+  //  $form['field_recur_group']['und']['0']['value']['#type'] = 'value';
+  if($form['#node']->field_recur['und'][0]['value'] == 1 && $form['#node']->field_recur_number['und'][0]['value'] > 1){
+    $form['actions']['delete_series']= array(
+        '#type' => 'submit',
+        '#value' => 'Delete series',
+        '#weight' => 20,
+        '#submit' => array('event_delete_series_submit'),
+    );
+    
+
+
+    $num_results = db_query("SELECT COUNT(*)
+                             FROM {node} node
+                             INNER JOIN {signup} signup ON node.nid = signup.nid
+                             WHERE signup.status = '1' AND node.uid = :uid AND node.title = :title AND node.created = :created",
+             array(':uid' => $form['#node']->uid,
+                   ':title' => $form['#node']->title,
+                   ':created' => $form['#node']->created,
+                  ))->fetchField();
+    
+    $form['actions']['submit']['#value']= 'Save event';
+    $form['actions']['delete']['#value']= 'Delete event';
+    $form['action_description'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('This event is part of a series of @num active events.', array('@num' => $num_results)),
+        '#weight' => 100,
+    );
+    
+  }
+  else{
+    $form['actions']['submit']['#value']= 'Save';
+    $form['actions']['delete']['#value']= 'Delete event';  
+  }
+  
+  //if this is an edit form rather than a new node, hide the field_recur fields
+  if(!empty($form['#node']->nid)){
+    $form['field_recur']['und']['#type'] = 'hidden';
+    $form['field_recur_number']['und']['#type'] = 'hidden';
+    $form['field_recur']['und']['#disabled'] = TRUE;
+    $form['field_recur_number']['und']['#disabled'] = TRUE;
+  }
+
+//  
+//  $form['field_custom_descr'] = array(
+//    '#markup' => '<div id="event-limit-descr"> Please no more than one event per event type at any given time </div>',
+//    '#weight' => '-10',
+//  );
+  
+  $form['actions']['submit']['#validate'][] = 'tinbully_glue_event_validate';  //nodes actually have their own hook_node_validate too...
+
+}
+
+function tinbully_glue_event_validate($form, &$form_state){
+  $new_time_start_array = array();
+  $new_time_end_array = array();
+  $new_time_start_array[] = strtotime($form_state['values']['field_time']['und']['0']['value']);
+  $new_time_end_array[] = strtotime($form_state['values']['field_time']['und']['0']['value2']);
+  if($new_time_end_array[0] <= $new_time_start_array[0]){
+    form_set_error('field_time', t('An event may not end before or at the same time that it starts.'));
+    return;
+  } elseif($new_time_end_array[0] - 24*60*60 >= $new_time_start_array[0]){
+    form_set_error('field_time', t('An event may not be 24 hours long or longer'));
+    return;
+  }
+  
+  if($form_state['values']['field_recur']['und']['0']['value'] == 1){
+    for ($i = 1; $i < $form_state['values']['field_recur_number']['und']['0']['value']; $i++) {
+      $new_time_start_array[] = strtotime('+7 days',$new_time_start_array[$i-1]);
+      $new_time_end_array[] = strtotime('+7 days',$new_time_end_array[$i-1]);
+    }  
+  }
+
+
+  //Enforce that we may not have more than x events of the same type at any given time
+  $max_event_num = 2;
+  $error_msg = t('You can not have more than @max events per event type at the same time.  This rule is violated for at least these time periods:',
+                 array('@max' => $max_event_num)
+               ).'<br /><br />';
+  
+//for each event type
+  for($t = 0; $t < count($form_state['values']['field_event_type']['und']); $t++){
+    $result = db_query("SELECT time.field_time_value AS start_time, time.field_time_value2 AS end_time
+                        FROM {node} node
+                        INNER JOIN {signup} signup ON node.nid = signup.nid
+                        INNER JOIN {field_data_field_time} time ON node.nid = time.entity_id
+                        INNER JOIN {field_data_field_event_type} type ON node.nid = type.entity_id
+                        WHERE node.uid = :uid AND (node.type IN ('event')) AND signup.status = '1' AND
+                              type.field_event_type_tid = :tid",
+             array(':uid' => $form['uid']['#value'],
+                   ':tid' => $form_state['values']['field_event_type']['und'][$t]['tid'],
+                  ))->fetchAll();
+    
+    $new_time_start_array_adj = $new_time_start_array;
+    $new_time_end_array_adj = $new_time_end_array;
+    $old_time_start_array = array();
+    $old_time_end_array = array();
+    foreach ($result as $record) {
+      $old_time_start_array[] = strtotime($record->start_time);    
+      $old_time_end_array[] = strtotime($record->end_time);
+    }
+    //for each of the new events
+    for ($i = 0; $i < count($new_time_start_array); $i++) {
+      $overlap_count[$t][$i] = 0;
+      //for each of the existing (old) events
+      for ($j = 0; $j < count($old_time_start_array); $j++) {
+        //this expression checks for an overlap
+        if($old_time_start_array[$j] < $new_time_end_array_adj[$i] && $old_time_end_array[$j] > $new_time_start_array_adj[$i]){
+          $overlap_count[$t][$i]++; 
+          //now, to check if more overlaps are happening at the same time, we must consider only the time range that overlapped
+          if($old_time_start_array[$j] > $new_time_start_array_adj[$i]){
+            $new_time_start_array_adj[$i] = $old_time_start_array[$j];
+          }
+          if($old_time_end_array[$j] < $new_time_end_array_adj[$i]){
+            $new_time_end_array_adj[$i] = $old_time_end_array[$j];
+          }
+          if($overlap_count[$t][$i] > $max_event_num-1){
+
+            $error_msg .= t('@start to @end',
+                            array('@start' => date("D, M j, g:ia",$new_time_start_array_adj[$i]),
+                                  '@end' => date("D, M j, g:ia",$new_time_end_array_adj[$i])
+                            )
+                          ).'<br /><br />';
+          }
+        }
+      }
+
+    }
+    $overlap_count_max[$t] = max($overlap_count[$t]);
+    unset($result, $old_time_start_array, $old_time_end_array, $new_time_start_array_adj, $new_time_end_array_adj);
+  }
+  if(max($overlap_count_max) > $max_event_num-1){
+    form_set_error('field_time',$error_msg);
+  }  
+  
+//  form_set_error('temporary error to prevent submission');
+}
+
+/**
+ * Implements hook_form_node_delete_confirm_alter()
+ */
+function tinbully_glue_form_node_delete_confirm_alter(&$form, &$form_state, $form_id) {
+//  $form['actions']['submit']['#submit'] = array('node_delete_confirm_submit','node_delete_confirm_submit_redirect');
+  $form['#submit'][] = 'node_delete_confirm_submit_redirect'; 
+}
+
+function node_delete_confirm_submit_redirect($form, &$form_state){
+  $form_state['redirect'] = 'my-events';
+}
+
+function event_delete_series_submit($form, &$form_state){
+  $destination = array();
+  if (isset($_GET['destination'])) {
+    $destination = drupal_get_destination();
+    unset($_GET['destination']);
+  }
+  $node = $form['#node'];
+  $form_state['redirect'] = array('node/' . $node->nid . '/delete_series', array('query' => $destination));
+}
+
+function node_delete_series_confirm($form, &$form_state, $node) {
+  $form['#node'] = $node;
+  // Always provide entity id in the same form key as in the entity edit form.
+  
+//  $num_results = db_query("SELECT COUNT(*) FROM {node} WHERE uid = :uid AND title = :title AND created = :created",
+  $num_results = db_query("SELECT COUNT(*)
+                           FROM {node} node
+                           INNER JOIN {signup} signup ON node.nid = signup.nid
+                           WHERE signup.status = '1' AND node.uid = :uid AND node.title = :title AND node.created = :created",
+             array(':uid' => $form['#node']->uid,
+                   ':title' => $form['#node']->title,
+                   ':created' => $form['#node']->created,
+                  ))->fetchField();
+  
+  $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
+  $form['num_events'] = array('#type' => 'value', '#value' => $num_results);
+  return confirm_form($form,
+    t('Are you sure?'),
+    'node/' . $node->nid,
+    t('You are deleting %num active events', array('%num' => $num_results)),
+    t('Delete'),
+    t('Cancel')
+  );
+}
+  
+  
+function node_delete_series_confirm_submit($form, &$form_state) {
+  
+  $result = db_query("SELECT node.nid
+                      FROM {node} node
+                      INNER JOIN {signup} signup ON node.nid = signup.nid
+                      WHERE signup.status = '1' AND node.uid = :uid AND node.title = :title AND node.created = :created",
+             array(':uid' => $form['#node']->uid,
+                   ':title' => $form['#node']->title,
+                   ':created' => $form['#node']->created,
+                  ))->fetchAll();
+
+  $num_deleted = 0;
+  foreach ($result as $record) {
+    node_delete($record->nid);
+    $num_deleted++;
+  }
+  drupal_set_message(t('The series of @num active events was deleted', array('@num' => $num_deleted)));
+  $form_state['redirect'] = 'my-events';
+}
+/**
+ * Implements hook_form_invite_form_alter()
+ */
+function tinbully_glue_form_invite_form_alter(&$form, &$form_state, $form_id) {
+  $form['from']['#type'] = 'hidden';
+  $form['subject_markup']['#type'] = 'hidden';
+  $form['message']['#type'] = 'hidden';
+  $form['submit_show']['#type'] = 'hidden';
+  
+}
+
+//reference invite_form() and invite_page_form() in invite.module
+function event_invite_form($form, &$form_state) {
+  global $user;
+  /*
+  $from = '';
+  if (!empty($user->mail)) {
+    $from = $user->mail;
+  }
+  $form['from'] = array(
+    '#type' => 'item',
+    '#title' => t('The invite will be sent from:'),
+    '#markup' => check_plain($from),
+  );
+  */
+  $failed_emails = '';
+  if (isset($_SESSION['event_invite_failed_emails'])) {
+    $failed_emails = implode(', ', (array) unserialize($_SESSION['event_invite_failed_emails']));
+    unset($_SESSION['event_invite_failed_emails']);
+  }
+  $form['email'] = array(
+    '#title' => t('Enter the e-mail addresses of the people you would like to invite to this event'),
+    '#description' => 'To specify multiple recipients, enter one e-mail address per line or separate each address with a comma.',
+    '#default_value' => $failed_emails,
+    '#required' => FALSE,
+    '#type' => 'textarea',
+    '#rows' => 3,     
+  ); 
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send invite'),
+  );
+  return $form;
+}
+
+//taken mostly from invite.module (invite_form_validate() and _invite_get_emails())
+function event_invite_form_validate($form, &$form_state) {
+  //verify that the sender has a valid address?
+  //gather emails from the form. check if they are valid.
+  $string = $form_state['values']['email'];
+  if(empty($string)){
+    form_set_error('email', 'No email address was entered');
+    return;
+  }
+  $valid_emails = $failed_emails = array();
+  $user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
+  $domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
+  $ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
+  $ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
+  $rx = "/($user@($domain|(\[($ipv4|$ipv6)\])))>?$/";
+
+  $emails = str_replace(array("\n", "\r"), ',', drupal_strtolower($string));
+  $emails = array_filter(array_unique(explode(',', $emails)));
+  foreach ($emails as $email) {
+    $email = preg_replace('/^.*<(.*)>$/', '${1}', trim($email));
+    if ($email) {
+      if (preg_match($rx, $email, $match)) {
+        $valid_emails[] = $match[1];
+      }
+      else {
+        $failed_emails[] = $email;
+      }
+    }
+  }
+  if (!count($valid_emails)) {
+    $error = format_plural(count($failed_emails), 'The following email is invalid. Please correct it and resubmit.', 'The following emails are invalid. Please correct them and resubmit.') . '<br />';
+    form_set_error('email', $error);
+    return;    
+  }
+
+  if (count($failed_emails)) {
+    $error = format_plural(count($failed_emails), 'The email in the text input area below is invalid. Please correct it and resubmit.', 'The emails in the text input area below are invalid. Please correct them and resubmit.') . '<br />';
+    drupal_set_message($error, 'error');
+    $_SESSION['event_invite_failed_emails'] = serialize($failed_emails);
+  }
+  
+  $form_state['values']['valid_emails'] = $valid_emails;
+
+}
+
+/**
+ * Forms API callback; process submitted form data.
+ * Reference invite_form_submit()
+ */
+
+function event_invite_form_submit($form, &$form_state) {
+  global $user, $language;
+  $failed_emails = array();
+  $num_failed = $num_succeeded = 0;
+  
+  /*  
+  $from = $form_state['values']['from'];
+  if (empty($from)) {
+    // Never pass an empty string to drupal_mail()
+    $from = NULL;
+  }
+  */
+  $path = current_path();
+  $path_components = explode('/', $path);
+  $event_obj = node_load($path_components[1]);
+  $author = user_load($event_obj->uid);
+  
+  $string_start = $event_obj->field_time['und']['0']['value'];
+  list($date_start,$tod_start) = explode(" ",$string_start);
+  list($year_start,$month_start,$day_start)=explode("-",$date_start);
+  list($hour_start,$minute_start,$second_start)=explode(":",$tod_start);
+  $string_end = $event_obj->field_time['und']['0']['value2'];
+  list($date_end,$tod_end) = explode(" ",$string_end);
+  list($year_end,$month_end,$day_end)=explode("-",$date_end);
+  list($hour_end,$minute_end,$second_end)=explode(":",$tod_end);
+  $time_stamp_start = mktime($hour_start,$minute_start,$second_start,$month_start,$day_start,$year_start);
+  $time_stamp_end = mktime($hour_end,$minute_end,$second_end,$month_end,$day_end,$year_end);
+  $formatted_string_start = date("l F j, g:i a", $time_stamp_start);
+  $formatted_string_end = date("g:i a", $time_stamp_end);
+ 
+  $string_street = $event_obj->field_location['und']['0']['street'];
+  $string_city = $event_obj->field_location['und']['0']['city'];
+  $string_province = $event_obj->field_location['und']['0']['province'];
+  //if event_invite gets reactivated, make sure user->name is replaced with profile name
+  $subject = $user->name.' has invited you to ['.$event_obj->title.']';
+  $body = $user->name.' has invited you to the following event: <br /> <br />'.
+    '<em>'.l($event_obj->title,'http://www.mappenin.com/node/'.$event_obj->nid).'</em><br /><br />'.
+    $formatted_string_start.' - '.$formatted_string_end.'<br /><br />'.
+    l($author->name,'http://www.mappenin.com/user/'.$author->uid).'<br /><br />'.
+    $string_street.' '.$string_city.', '.$string_province.'<br /><br />'.
+    '<br />-- Sent with '.l('mappenin.com','http://www.mappenin.com/');
+  $params = array('subject' => $subject, 'body' => $body);
+  // Get e-mails that failed validation.
+  /*
+  if (isset($_SESSION['event_invite_failed_emails'])) {
+    $failed_emails = (array) unserialize($_SESSION['event_invite_failed_emails']);
+    $num_failed = count($failed_emails);
+  }
+  */
+  foreach ($form_state['values']['valid_emails'] as $to_email) {
+    $result = drupal_mail('tinbully_glue', 'event_invite', $to_email, $language, $params, NULL, TRUE);
+    if ($result['result']) {
+      $num_succeeded++;
+    }
+    /*
+    else {
+      $failed_emails[] = $email;
+    }
+    */
+  }
+  // Store failed e-mails for re-display.
+  /*
+  if ($failed_emails) {
+    $_SESSION['invite_failed_emails'] = serialize($failed_emails);
+  }
+  */
+  if ($num_succeeded) {
+    $message = format_plural($num_succeeded, 'One invitation is being sent.' , '@count invitations are being sent.' );
+    drupal_set_message($message);
+  }
+  /*
+  if ($num_failed) {
+    $message = format_plural($num_failed, 'The following email is invalid. Please correct it and resubmit.', 'The following emails are invalid. Please correct them and resubmit.') . '<br />';
+    drupal_set_message($message, 'error');
+  }
+  */
+}
+
+function invite_friends_access() {
+  global $user;
+  //$profile = profile2_load_by_user($user);
+  //if(!empty($profile['individual'])){
+  //$user->roles[4] is individual and $user->roles[3] is administrator
+  if(!empty($user->roles[4]) || !empty($user->roles[3])){
+    return TRUE;
+    }
+  else{
+    return FALSE;
+  }
+
+}
+
+function invite_friends_form($form, &$form_state) {
+  global $user;
+  $failed_emails = '';
+  if (isset($_SESSION['invite_friends_failed_emails'])) {
+    $failed_emails = implode(', ', (array) unserialize($_SESSION['invite_friends_failed_emails']));
+    unset($_SESSION['invite_friends_failed_emails']);
+  }
+  $form['email'] = array(
+    '#title' => t('Enter the e-mail addresses of the people you would like to invite to this site'),
+    '#description' => 'To specify multiple recipients, enter one e-mail address per line or separate each address with a comma.',
+    '#default_value' => $failed_emails,
+    '#required' => FALSE,
+    '#type' => 'textarea',
+    '#rows' => 3,     
+  ); 
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send invite'),
+  );
+  return $form;
+}
+
+//taken mostly from invite.module (invite_form_validate() and _invite_get_emails())
+function invite_friends_form_validate($form, &$form_state) {
+  //verify that the sender has a valid address?
+  //gather emails from the form. check if they are valid.
+  $string = $form_state['values']['email'];
+  if(empty($string)){
+    form_set_error('email', 'No email address was entered');
+    return;
+  }
+  $valid_emails = $failed_emails = array();
+  $user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
+  $domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
+  $ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
+  $ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
+  $rx = "/($user@($domain|(\[($ipv4|$ipv6)\])))>?$/";
+
+  $emails = str_replace(array("\n", "\r"), ',', drupal_strtolower($string));
+  $emails = array_filter(array_unique(explode(',', $emails)));
+  foreach ($emails as $email) {
+    $email = preg_replace('/^.*<(.*)>$/', '${1}', trim($email));
+    if ($email) {
+      if (preg_match($rx, $email, $match)) {
+        $valid_emails[] = $match[1];
+      }
+      else {
+        $failed_emails[] = $email;
+      }
+    }
+  }
+  if (!count($valid_emails)) {
+    $error = format_plural(count($failed_emails), 'The following email is invalid. Please correct it and resubmit.', 'The following emails are invalid. Please correct them and resubmit.') . '<br />';
+    form_set_error('email', $error);
+    return;    
+  }
+
+  if (count($failed_emails)) {
+    $error = format_plural(count($failed_emails), 'The email in the text input area below is invalid. Please correct it and resubmit.', 'The emails in the text input area below are invalid. Please correct them and resubmit.') . '<br />';
+    drupal_set_message($error, 'error');
+    $_SESSION['invite_friends_failed_emails'] = serialize($failed_emails);
+  }
+  
+  $form_state['values']['valid_emails'] = $valid_emails;
+
+}
+
+/**
+ * Forms API callback; process submitted form data.
+ * Reference invite_form_submit()
+ */
+
+function invite_friends_form_submit($form, &$form_state) {
+  global $user, $language;
+  $failed_emails = array();
+  $num_failed = $num_succeeded = 0;
+  $profile = profile2_load_by_user($user);
+  if(!empty($profile['individual']->field_name['und'][0]['safe_value'])){
+    $inviter_name = $profile['individual']->field_name['und'][0]['safe_value'].' ('.$user->mail.')';     
+  }
+  else{
+    $inviter_name = $user->mail;
+  }
+
+  
+  $subject = $inviter_name.' has invited you to Mappenin!';
+  $body = $inviter_name.' has invited you to Mappenin! <br /><br />'.
+    'Mappenin (mappenin.com) is a mobile website for Stanford students to post '.
+    'and find events on and off campus, and the beta version is now live! Register '.
+    'at mappenin.com/register. After registering and logging in, you can: <br /><br />'.
+    '1. Search for events happening around you on a map  <br />'.
+    '2. Post events you know about for other Stanford students to find <br />'.
+    '3. Add events to your schedule <br />'.
+    '4. Share your schedule with other Stanford friends <br /><br />'.
+    'Post any events you know of (parties, live music, etc.) '.
+    'so that other Stanford students can easily find out about them.  Also, invite your friends '.
+    'to join the site so you can share your events and schedule with them. '.
+    'Finally, give me feedback so that I can make the site more useful and fun for everyone.<br /><br />'.
+    'Thanks, and enjoy!';
+  $params = array('subject' => $subject, 'body' => $body);
+  foreach ($form_state['values']['valid_emails'] as $to_email) {
+    $result = drupal_mail('tinbully_glue', 'invite_friends', $to_email, $language, $params, NULL, TRUE);
+    if ($result['result']) {
+      $num_succeeded++;
+    }
+  }
+  if ($num_succeeded) {
+    $message = format_plural($num_succeeded, 'One invitation is being sent.' , '@count invitations are being sent.' );
+    drupal_set_message($message);
+  }
+}
+
+
+
+/**
+ * Implements hook_mail().
+ */
+function tinbully_glue_mail($key, &$message, $params) {
+  switch($key){
+    case 'event_invite':
+//      $message['headers']['Reply-To'] = $params['reply-to'];
+
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;
+    case 'invite_friends':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;
+  }
+
+}
+
+
+
+/**
+ * Implements hook_user_login().
+ */
+/*
+function tinbully_glue_user_login(&$edit, $account) {
+  $test_var = 3;
+}
+*/
+/*
+function tinbully_glue_event_submit($form, &$form_state){
+  $testvar = 4;  
+}
+ */
+
+/* hook_node implementations */
+/**
+ * Implements hook_node_presave().
+ */
+/*
+function tinbully_glue_node_presave($node) {
+  if($node->is_new && empty($node->is_clone) && $node->field_recur['und'][0]['value'] == 1 && $node->field_recur_number['und'][0]['value'] > 1){
+    $node->field_recur_group['und'][0]['value'] = $node->uid.'-'.$node->created;
+  }
+}
+*/
+
+/**
+ * Implements hook_node_insert().
+ * 
+ */
+
+function tinbully_glue_node_insert($node) {
+  if($node->type == 'event'){
+    //if event is recurring, than make copies and set message
+    if(empty($node->is_clone) && $node->field_recur['und'][0]['value'] == 1 && $node->field_recur_number['und'][0]['value'] > 1){
+      custom_clone($node,$node->field_recur_number['und'][0]['value']-1);    
+      drupal_set_message(t('Thank you for posting! Series was created with %num total events', array('%num' => $node->field_recur_number['und'][0]['value'])));
+    }
+    elseif($node->field_recur['und'][0]['value'] == 0){
+      drupal_set_message(t('Thank you for posting!'));
+    }
+  }
+  /*
+  //Automatically signs up the author of the node to the node itself
+  if(in_array("Individual",$user->roles)){
+    $signup_form = array();
+    $signup_form['nid'] = $node->nid;
+    $signup_form['uid'] = $node->uid;
+    signup_sign_up_user($signup_form);
+  }
+  */
+}
+
+/**
+ * Implements hook_node_view().
+ */
+/*
+function tinbully_glue_node_view($node) {
+  global $user;
+  if($user->uid == $node->uid && !isset($node->clone_from_original_nid) && $node->make_copies == 1){
+    $number = intval($node->num_copies)+1;
+    custom_clone($node,$number);
+    drupal_set_message(t('Series was created with ').($number+1).t(' total events'));
+  }
+}
+*/
+
+/**
+ *  Makes a weekly copy of a node for a specified number of weeks.
+ *  Copied mostly from clone_node_save()
+ */
+function custom_clone($node, $number = 20) {
+  if (isset($node->nid) && clone_is_permitted($node->type)) {
+    $new_node = clone $node;
+    $new_node->is_clone = 1;
+    $string_start = $new_node->field_time['und']['0']['value'];
+    list($date_start,$tod_start) = explode(" ",$string_start);
+    list($year_start,$month_start,$day_start)=explode("-",$date_start);
+    list($hour_start,$minute_start,$second_start)=explode(":",$tod_start);
+    $string_end = $new_node->field_time['und']['0']['value2'];
+    list($date_end,$tod_end) = explode(" ",$string_end);
+    list($year_end,$month_end,$day_end)=explode("-",$date_end);
+    list($hour_end,$minute_end,$second_end)=explode(":",$tod_end);
+    for ($i = 1; $i <= $number; $i++) {
+      $new_node->nid = NULL;
+      $new_node->vid = NULL;
+      $new_node->tnid = NULL;
+//      $new_node->created = NULL;
+      $new_node->book['mlid'] = NULL;
+      $new_node->path = NULL;
+      $new_node->files = array();
+//      $node->signup_status = NULL;
+      $new_time_stamp_end = mktime($hour_end,$minute_end,$second_end,$month_end,$day_end+7*$i,$year_end);
+      $new_node->field_time['und']['0']['value2'] = date("Y-m-d H:i:s", $new_time_stamp_end);   
+      $new_time_stamp_start = mktime($hour_start,$minute_start,$second_start,$month_start,$day_start+7*$i,$year_start);
+      $new_node->field_time['und']['0']['value'] = date("Y-m-d H:i:s", $new_time_stamp_start);
+      node_save($new_node);
+    }
+//    drupal_goto('node/'. $original_node->nid);
+  }
+}  
+/**
+ * Implements hook_cron().
+ */
+/*commenting out this incomplete section, since I first need to find a way to store the email update checkbox selection.
+function tinbully_glue_cron() {
+  //if event_update_email is 1 and it is wednesday after noon, send emails and set
+  //event_update_email to 0.
+  $event_update_email = variable_get($event_update, 0);  
+  if($event_update_email == 1 && date('D') == 'Wed' && date('G') >= 12 ){
+    
+    variable_set($event_update, 0);
+  }
+  
+  
+  //if it is not Wednesday, set event_update_email to 1
+  if(date('D') != 'Wed' &&  $event_update_email == 0){    
+    variable_set($event_update, 1);
+  }
+}
+*/
+
+
+/**
+ * Implements hook_init().
+ */
+/*
+function tinbully_glue_init() {
+  
+  //get the clonable node for making the new events. this mode was made by the administrator.
+  $clonable_nid = db_query("SELECT node.nid
+                    FROM {node} node
+                    WHERE node.title = :title AND node.uid = :uid",
+           array(':uid' => '1',
+                 ':title' => 'Clonable Music Show',
+                ))->fetchField();
+  $new_node = node_load($clonable_nid);
+  
+  //all new events will be assigned to the Steve's List venue
+  $steveslist_uid = db_query("SELECT pf.uid
+                    FROM {profile} pf
+                    INNER JOIN {field_data_field_ven_name} name
+                    ON pf.pid = name.entity_id
+                    WHERE name.field_ven_name_value = :venname",
+           array(":venname" => "Steve's List",
+                ))->fetchField();
+  $new_node->uid = $steveslist_uid;
+  
+  //Time of day regular expression is needed later
+  $tod_regex = '#([1-9]|10|11|12)(:[0-5][0-9])?(am|pm)#';
+  $date_regex = '#(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s*[0-3]?[0-9]#i';
+  //using DOM/XPath to grab the events from foopee, which has formatted steve's list
+  $dom = new DOMDocument;
+  $html = file_get_contents('http://www.foopee.com/punk/the-list/by-date.0.html');
+  @$dom->loadHTML($html);
+  $xpath = new DOMXPath($dom);
+  
+  //start with dates as the outermost loop. get the month number and day number
+  $date_list = $xpath->query('/html/body/ul[1]/li/a[1]/b[1]');  
+  foreach($date_list as $date_elem){
+    $date = '';
+    if(preg_match($date_regex, $date_elem->nodeValue, $date_matches)){
+      $date = $date_matches[0];
+    }
+    
+    //load all the events within this date and then loop through events.
+    $event_list = $xpath->query('../../ul/li',$date_elem);
+    foreach($event_list as $event_elem) {
+      //store the full event listing
+      $event =  $event_elem->nodeValue; 
+      
+      //store the band list as comma-separated list
+      $band_list = $xpath->query('./a', $event_elem);
+      $bands = '...'; //this weirdness is useful for str_replace below
+      foreach($band_list as $band_elem) {
+        $bands = $bands.', '.$band_elem->nodeValue;
+      }
+      $bands_format = str_replace('..., ', '', $bands);
+      
+      //store the location as it is written for now.
+      $location_list = $xpath->query('./b[1]', $event_elem);
+      $location = $location_list->item(0)->nodeValue;
+      
+      //store time of day using the time of day regular expression
+      $tod = '';
+      if(preg_match($tod_regex, $event, $tod_matches)){
+        $tod = $tod_matches[0];
+      }
+      //use current year for timestamp, unless that would put the timestamp greater than 10 days ago. if that happens use next year
+      $timestamp = strtotime($date.', '.date('Y').', '.$tod);               
+      //$timestamp = strtotime($month_name_start.' '.$day_start.', '.date('Y').', '.$tod);               
+      if($timestamp && (date("U") - $timestamp > 10*24*60*60)){
+        $timestamp = strtotime($date.', '.(date('Y')+1).', '.$tod);
+        //$timestamp = strtotime($month_name_start.' '.$day_start.', '.(date('Y')+1).', '.$tod);
+      }
+      
+      //if we were able to get all necessary info from the event listing, then make a new node! 
+      if(!empty($event) && !empty($bands_format) && !empty($location) && !empty($timestamp) && !empty($date) && !empty($tod)){
+        //first clear the necessary fields from the node.
+        $new_node->is_steveslist_clone = 1;
+        $new_node->nid = NULL;
+        $new_node->vid = NULL;
+        $new_node->tnid = NULL;
+        $new_node->book['mlid'] = NULL;
+        $new_node->path = NULL;
+        $new_node->files = array();
+        
+        //now use the gathered info to populate the fields.
+        $new_node->body = 'Full event listing:'.$event; //this is the more info field
+        
+        //truncate the band list to 47 characters and add 3 dots. it is still in the body field anyways           
+        if(strlen($bands_format) > 50){
+          $bands_format = substr($bands_format, 0, 47); 
+          $bands_format = $bands_format.'...';
+        }
+        $new_node->title = $bands_format;
+        
+        //need to find a way to store the location!
+        $new_node->field_location['und']['0']['street'] = $location;
+        $new_node->field_location['und']['0']['city'] = '';
+        
+        //$new_time_stamp_start = mktime($hour_start,$minute_start,$second_start,$month_start,$day_start,$year_start);
+        $new_node->field_time['und']['0']['value'] = date("Y-m-d H:i:s", $timestamp);
+        //$new_time_stamp_end = mktime($hour_start+3,$minute_start,$second_start,$month_start,$day_start,$year_start);
+        $new_node->field_time['und']['0']['value2'] = date("Y-m-d H:i:s", $timestamp + 3*60*60);   
+        //node_save($new_node);                  
+      }
+    }  
+  }
+}
+*/
+
+/**
+ * Implements hook_boot().
+ */
+/*
+function tinbully_glue_boot() {
+  //first get the clonable event node from the database
+  $testthis = 3; 
+}
+*/

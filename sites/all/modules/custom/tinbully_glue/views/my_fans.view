@@ -1,0 +1,166 @@
+<?php
+
+$view = new view;
+$view->name = 'my_fans';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'users';
+$view->human_name = 'My Fans';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'Fans';
+$handler->display->display_options['css_class'] = 'common-pic-list';
+$handler->display->display_options['access']['type'] = 'role';
+$handler->display->display_options['access']['role'] = array(
+  3 => '3',
+  5 => '5',
+);
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['query_comment'] = FALSE;
+$handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
+$handler->display->display_options['exposed_form']['options']['submit_button'] = 'Find';
+$handler->display->display_options['exposed_form']['options']['autosubmit'] = 0;
+$handler->display->display_options['exposed_form']['options']['autosubmit_hide'] = 1;
+$handler->display->display_options['exposed_form']['options']['bef'] = array(
+  'field_name_value' => array(
+    'more_options' => array(
+      'bef_filter_description' => '',
+    ),
+  ),
+);
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '40';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['pager']['options']['id'] = '0';
+$handler->display->display_options['pager']['options']['expose']['items_per_page_options_all'] = 0;
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'fields';
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['label'] = 'No Results My Fans';
+$handler->display->display_options['empty']['area']['empty'] = FALSE;
+$handler->display->display_options['empty']['area']['content'] = 'You do not currently have any fans';
+$handler->display->display_options['empty']['area']['format'] = 'plain_text';
+$handler->display->display_options['empty']['area']['tokenize'] = 0;
+/* Relationship: User relationships: Requester user */
+$handler->display->display_options['relationships']['requester_id']['id'] = 'requester_id';
+$handler->display->display_options['relationships']['requester_id']['table'] = 'user_relationships';
+$handler->display->display_options['relationships']['requester_id']['field'] = 'requester_id';
+$handler->display->display_options['relationships']['requester_id']['required'] = 1;
+/* Relationship: User: Profile */
+$handler->display->display_options['relationships']['profile_1']['id'] = 'profile_1';
+$handler->display->display_options['relationships']['profile_1']['table'] = 'users';
+$handler->display->display_options['relationships']['profile_1']['field'] = 'profile';
+$handler->display->display_options['relationships']['profile_1']['relationship'] = 'requester_id';
+$handler->display->display_options['relationships']['profile_1']['label'] = 'Requester Profile';
+$handler->display->display_options['relationships']['profile_1']['required'] = 0;
+$handler->display->display_options['relationships']['profile_1']['bundle_types'] = array(
+  'individual' => 'individual',
+);
+/* Field: Profile: Profile picture */
+$handler->display->display_options['fields']['field_profile_pic_1']['id'] = 'field_profile_pic_1';
+$handler->display->display_options['fields']['field_profile_pic_1']['table'] = 'field_data_field_profile_pic';
+$handler->display->display_options['fields']['field_profile_pic_1']['field'] = 'field_profile_pic';
+$handler->display->display_options['fields']['field_profile_pic_1']['relationship'] = 'profile_1';
+$handler->display->display_options['fields']['field_profile_pic_1']['label'] = '';
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_profile_pic_1']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_profile_pic_1']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_profile_pic_1']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_profile_pic_1']['click_sort_column'] = 'fid';
+$handler->display->display_options['fields']['field_profile_pic_1']['settings'] = array(
+  'image_style' => '',
+  'image_link' => '',
+);
+$handler->display->display_options['fields']['field_profile_pic_1']['field_api_classes'] = 0;
+/* Field: Profile: Name */
+$handler->display->display_options['fields']['field_name']['id'] = 'field_name';
+$handler->display->display_options['fields']['field_name']['table'] = 'field_data_field_name';
+$handler->display->display_options['fields']['field_name']['field'] = 'field_name';
+$handler->display->display_options['fields']['field_name']['relationship'] = 'profile_1';
+$handler->display->display_options['fields']['field_name']['label'] = '';
+$handler->display->display_options['fields']['field_name']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_name']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_name']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_name']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_name']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_name']['empty'] = '(No name)';
+$handler->display->display_options['fields']['field_name']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_name']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_name']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_name']['field_api_classes'] = 0;
+/* Sort criterion: Global: Random */
+$handler->display->display_options['sorts']['random']['id'] = 'random';
+$handler->display->display_options['sorts']['random']['table'] = 'views';
+$handler->display->display_options['sorts']['random']['field'] = 'random';
+/* Filter criterion: Profile: Name (field_name) */
+$handler->display->display_options['filters']['field_name_value']['id'] = 'field_name_value';
+$handler->display->display_options['filters']['field_name_value']['table'] = 'field_data_field_name';
+$handler->display->display_options['filters']['field_name_value']['field'] = 'field_name_value';
+$handler->display->display_options['filters']['field_name_value']['relationship'] = 'profile_1';
+$handler->display->display_options['filters']['field_name_value']['operator'] = 'contains';
+$handler->display->display_options['filters']['field_name_value']['group'] = 1;
+$handler->display->display_options['filters']['field_name_value']['exposed'] = TRUE;
+$handler->display->display_options['filters']['field_name_value']['expose']['operator_id'] = 'field_name_value_op';
+$handler->display->display_options['filters']['field_name_value']['expose']['label'] = 'Search:';
+$handler->display->display_options['filters']['field_name_value']['expose']['operator'] = 'field_name_value_op';
+$handler->display->display_options['filters']['field_name_value']['expose']['identifier'] = 'field_name_value';
+$handler->display->display_options['filters']['field_name_value']['expose']['required'] = 0;
+$handler->display->display_options['filters']['field_name_value']['expose']['multiple'] = FALSE;
+/* Filter criterion: User: Current */
+$handler->display->display_options['filters']['uid_current']['id'] = 'uid_current';
+$handler->display->display_options['filters']['uid_current']['table'] = 'users';
+$handler->display->display_options['filters']['uid_current']['field'] = 'uid_current';
+$handler->display->display_options['filters']['uid_current']['value'] = '1';
+$handler->display->display_options['filters']['uid_current']['group'] = 1;
+/* Filter criterion: User relationships: Relationship type */
+$handler->display->display_options['filters']['rtype']['id'] = 'rtype';
+$handler->display->display_options['filters']['rtype']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['rtype']['field'] = 'rtype';
+$handler->display->display_options['filters']['rtype']['value'] = array(
+  0 => '4',
+);
+$handler->display->display_options['filters']['rtype']['group'] = 1;
+/* Filter criterion: User relationships: Relationship status */
+$handler->display->display_options['filters']['approved']['id'] = 'approved';
+$handler->display->display_options['filters']['approved']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['approved']['field'] = 'approved';
+$handler->display->display_options['filters']['approved']['value'] = '1';
+$handler->display->display_options['filters']['approved']['group'] = 1;
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['path'] = 'fans';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['context'] = 0;

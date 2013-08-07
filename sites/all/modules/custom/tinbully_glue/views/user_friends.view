@@ -1,0 +1,205 @@
+<?php
+
+$view = new view;
+$view->name = 'user_friends';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'users';
+$view->human_name = 'User Friends';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'Friends';
+$handler->display->display_options['css_class'] = 'common-pic-list';
+$handler->display->display_options['access']['type'] = 'role';
+$handler->display->display_options['access']['role'] = array(
+  3 => '3',
+  4 => '4',
+);
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['query_comment'] = FALSE;
+$handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
+$handler->display->display_options['exposed_form']['options']['submit_button'] = 'Find';
+$handler->display->display_options['exposed_form']['options']['autosubmit'] = 0;
+$handler->display->display_options['exposed_form']['options']['autosubmit_hide'] = 1;
+$handler->display->display_options['exposed_form']['options']['bef'] = array(
+  'name' => array(
+    'more_options' => array(
+      'bef_filter_description' => '',
+    ),
+  ),
+);
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '40';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['pager']['options']['id'] = '0';
+$handler->display->display_options['pager']['options']['total_pages'] = '5';
+$handler->display->display_options['pager']['options']['expose']['items_per_page_options_all'] = 0;
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'fields';
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['label'] = 'No Results Friends';
+$handler->display->display_options['empty']['area']['empty'] = FALSE;
+$handler->display->display_options['empty']['area']['content'] = 'This person does not currently have any friends. You should fix that!';
+$handler->display->display_options['empty']['area']['format'] = 'plain_text';
+$handler->display->display_options['empty']['area']['tokenize'] = 1;
+/* Relationship: User: Profile */
+$handler->display->display_options['relationships']['profile']['id'] = 'profile';
+$handler->display->display_options['relationships']['profile']['table'] = 'users';
+$handler->display->display_options['relationships']['profile']['field'] = 'profile';
+$handler->display->display_options['relationships']['profile']['required'] = 0;
+$handler->display->display_options['relationships']['profile']['bundle_types'] = array(
+  'individual' => 'individual',
+);
+/* Field: Profile: Profile picture */
+$handler->display->display_options['fields']['field_profile_pic']['id'] = 'field_profile_pic';
+$handler->display->display_options['fields']['field_profile_pic']['table'] = 'field_data_field_profile_pic';
+$handler->display->display_options['fields']['field_profile_pic']['field'] = 'field_profile_pic';
+$handler->display->display_options['fields']['field_profile_pic']['relationship'] = 'profile';
+$handler->display->display_options['fields']['field_profile_pic']['label'] = '';
+$handler->display->display_options['fields']['field_profile_pic']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_profile_pic']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_profile_pic']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_profile_pic']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_profile_pic']['click_sort_column'] = 'fid';
+$handler->display->display_options['fields']['field_profile_pic']['settings'] = array(
+  'image_style' => '',
+  'image_link' => '',
+);
+$handler->display->display_options['fields']['field_profile_pic']['field_api_classes'] = 0;
+/* Field: User: Uid */
+$handler->display->display_options['fields']['uid']['id'] = 'uid';
+$handler->display->display_options['fields']['uid']['table'] = 'users';
+$handler->display->display_options['fields']['uid']['field'] = 'uid';
+$handler->display->display_options['fields']['uid']['label'] = '';
+$handler->display->display_options['fields']['uid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['uid']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['external'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['uid']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['uid']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['uid']['alter']['html'] = 0;
+$handler->display->display_options['fields']['uid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['uid']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['uid']['hide_empty'] = 0;
+$handler->display->display_options['fields']['uid']['empty_zero'] = 0;
+$handler->display->display_options['fields']['uid']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['uid']['link_to_user'] = 0;
+/* Field: Profile: Name */
+$handler->display->display_options['fields']['field_name']['id'] = 'field_name';
+$handler->display->display_options['fields']['field_name']['table'] = 'field_data_field_name';
+$handler->display->display_options['fields']['field_name']['field'] = 'field_name';
+$handler->display->display_options['fields']['field_name']['relationship'] = 'profile';
+$handler->display->display_options['fields']['field_name']['label'] = '';
+$handler->display->display_options['fields']['field_name']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['make_link'] = 1;
+$handler->display->display_options['fields']['field_name']['alter']['path'] = 'individual/[uid]';
+$handler->display->display_options['fields']['field_name']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_name']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_name']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_name']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_name']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_name']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_name']['empty'] = '(No name)';
+$handler->display->display_options['fields']['field_name']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_name']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_name']['hide_alter_empty'] = 0;
+$handler->display->display_options['fields']['field_name']['field_api_classes'] = 0;
+/* Sort criterion: Global: Random */
+$handler->display->display_options['sorts']['random']['id'] = 'random';
+$handler->display->display_options['sorts']['random']['table'] = 'views';
+$handler->display->display_options['sorts']['random']['field'] = 'random';
+/* Contextual filter: User relationships: Requester user */
+$handler->display->display_options['arguments']['requester_id']['id'] = 'requester_id';
+$handler->display->display_options['arguments']['requester_id']['table'] = 'user_relationships';
+$handler->display->display_options['arguments']['requester_id']['field'] = 'requester_id';
+$handler->display->display_options['arguments']['requester_id']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['requester_id']['title_enable'] = 1;
+$handler->display->display_options['arguments']['requester_id']['title'] = '%1';
+$handler->display->display_options['arguments']['requester_id']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['requester_id']['default_argument_skip_url'] = 0;
+$handler->display->display_options['arguments']['requester_id']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['requester_id']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['requester_id']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['requester_id']['break_phrase'] = 0;
+$handler->display->display_options['arguments']['requester_id']['not'] = 0;
+/* Filter criterion: User: Active */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'users';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: User: Roles */
+$handler->display->display_options['filters']['rid']['id'] = 'rid';
+$handler->display->display_options['filters']['rid']['table'] = 'users_roles';
+$handler->display->display_options['filters']['rid']['field'] = 'rid';
+$handler->display->display_options['filters']['rid']['value'] = array(
+  3 => '3',
+  4 => '4',
+);
+$handler->display->display_options['filters']['rid']['group'] = 1;
+$handler->display->display_options['filters']['rid']['expose']['operator_id'] = 'rid_op';
+$handler->display->display_options['filters']['rid']['expose']['label'] = 'Roles';
+$handler->display->display_options['filters']['rid']['expose']['use_operator'] = FALSE;
+$handler->display->display_options['filters']['rid']['expose']['operator'] = 'rid_op';
+$handler->display->display_options['filters']['rid']['expose']['identifier'] = 'rid';
+$handler->display->display_options['filters']['rid']['expose']['required'] = FALSE;
+$handler->display->display_options['filters']['rid']['expose']['remember'] = FALSE;
+$handler->display->display_options['filters']['rid']['expose']['multiple'] = FALSE;
+$handler->display->display_options['filters']['rid']['reduce_duplicates'] = 1;
+/* Filter criterion: User relationships: Relationship status */
+$handler->display->display_options['filters']['approved']['id'] = 'approved';
+$handler->display->display_options['filters']['approved']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['approved']['field'] = 'approved';
+$handler->display->display_options['filters']['approved']['value'] = '1';
+/* Filter criterion: User relationships: Relationship type */
+$handler->display->display_options['filters']['rtype']['id'] = 'rtype';
+$handler->display->display_options['filters']['rtype']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['rtype']['field'] = 'rtype';
+$handler->display->display_options['filters']['rtype']['value'] = array(
+  0 => '2',
+);
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['path'] = 'individual/%/friends';
+$handler->display->display_options['menu']['type'] = 'tab';
+$handler->display->display_options['menu']['title'] = 'Friends';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['context'] = 0;

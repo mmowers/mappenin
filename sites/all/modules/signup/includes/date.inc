@@ -5,34 +5,6 @@
  */
 
 /**
- *
- * @return Array of SQL clauses for admin overview page query builder.
- */
-function _signup_date_admin_sql($content_type) {
-  // Get the date field information for this content type.
-  $field = signup_date_field($content_type);
-
-  // In the case where the same CCK date field is being reused on multiple
-  // content types, we'll potentially be JOINing on the same tables and
-  // columns for different content types.  To defend against duplicate table
-  // names or ambiguous columns in the query, use the content type to alias.
-  // Also, prefix it to make sure it's never a reserved word.
-  $alias = 'signup_alias_' . db_escape_table($content_type);
-
-  // See what fields to SELECT.
-  $fields[] = $alias . '.' . $field['field_name'] . '_value';
-  if (isset($field['columns']['timezone'])) {
-    $fields[] = $alias . '.' . $field['field_name'] . '_timezone';
-  }
-  $table = '{' . $field['database']['table'] . '} ' . $alias;
-  return array(
-    'fields' => $fields,
-    'joins' => array("LEFT JOIN $table ON $alias.revision_id = n.vid"),
-    'group_by' => $fields,
-  );
-}
-
-/**
  * @todo Please document this function.
  * @see http://drupal.org/node/1354
  */
@@ -195,10 +167,10 @@ function _signup_date_alter_node_type_form(&$form, &$form_state) {
 /**
  * Create the FAPI form element for the signup date field.
  *
- * @param $type
+ * @param string $type
  *   The node type to generate the form element for.
  *
- * @return
+ * @return array
  *   FAPI form array for the signup date field element.
  *
  * @see _signup_date_field_form_alter()
@@ -221,7 +193,7 @@ function _signup_date_field_element($type) {
  * configuration of any signup-enabled node types to ensure that the CCK date
  * field and signup settings make sense.
  *
- * @param $type
+ * @param string $type
  *   The 4th element in the URL which specifies which node type is currently
  *   being configured.  If this is empty, it means we're at the node type
  *   overview listing and we should test all node types.
@@ -251,13 +223,10 @@ function signup_date_check_node_types($type = NULL) {
  * date fields at all, or if they have date fields but haven't selected the
  * one to use for signup functionality.
  *
- * @param $type
+ * @param string $type
  *   The node type to check signup and CCK date field configuration on.
- * @param $name
+ * @param string $name
  *   Human readable name of the node type to check.
- *
- * @return
- *   Nothing -- configuration errors are reported via drupal_set_message().
  *
  * @see signup_help()
  */
@@ -294,10 +263,10 @@ function signup_date_field_check_config($type, $name) {
 /**
  * Helper function for the date field select to build its options.
  *
- * @param $type
+ * @param string $type
  *   Content type whose date fields should be listed.
  *
- * @return
+ * @return array
  *   Associative array with all date fields of the given content type plus
  *   'None' and an optional 'Not specified' if the user never selected a
  *   value.
@@ -402,6 +371,38 @@ function _signup_date_autoclose_sql($content_type) {
     'joins' => array("INNER JOIN $table ON $table.revision_id = n.vid"),
     'where' => $where,
   );
+}
+
+/**
+ * Alters the SQL query for the admin overview page.
+ *
+ * @param object $query
+ *   The database query object.
+ * @param string $content_type
+ *   A string containing the content type of the node.
+ */
+function _signup_date_admin_query(&$query, $content_type) {
+  // Get the date field information for this content type.
+  $field = signup_date_field($content_type);
+
+  // In the case where the same date field is being reused on multiple
+  // content types, we'll potentially be JOINing on the same tables and
+  // columns for different content types. To defend against duplicate table
+  // names or ambiguous columns in the query, use the content type to alias.
+  // Also, prefix it to make sure it's never a reserved word.
+  $alias = 'signup_alias_' . db_escape_table($content_type);
+  $table = $field['database']['table'];
+
+  $date = $field['field_name'] . '_value';
+  $query->leftJoin($table, $alias, $alias . '.revision_id = n.vid');
+  $query->addField($alias, $date, $date);
+  $query->groupBy($date);
+
+  if (isset($field['columns']['timezone'])) {
+    $timezone = $field['field_name'] . '_timezone';
+    $query->addField($alias, $timezone, $timezone);
+    $query->groupBy($timezone);
+  }
 }
 
 /**

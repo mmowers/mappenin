@@ -1,0 +1,178 @@
+<?php
+
+$view = new view();
+$view->name = 'venue_schedule';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'node';
+$view->human_name = 'Venue-Schedule';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'User Name';
+$handler->display->display_options['css_class'] = 'common-event-list';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['query_comment'] = FALSE;
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '20';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['pager']['options']['id'] = '0';
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['style_options']['grouping'] = array(
+  0 => array(
+    'field' => 'field_time_1',
+    'rendered' => 1,
+    'rendered_strip' => 0,
+  ),
+);
+$handler->display->display_options['row_plugin'] = 'fields';
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['label'] = 'No Results Venue Schedule';
+$handler->display->display_options['empty']['area']['content'] = 'This venue does not currently have any matching happenings on its schedule';
+$handler->display->display_options['empty']['area']['format'] = 'plain_text';
+$handler->display->display_options['empty']['area']['tokenize'] = TRUE;
+/* Relationship: Content: Author */
+$handler->display->display_options['relationships']['uid']['id'] = 'uid';
+$handler->display->display_options['relationships']['uid']['table'] = 'node';
+$handler->display->display_options['relationships']['uid']['field'] = 'uid';
+/* Field: Content: When */
+$handler->display->display_options['fields']['field_time']['id'] = 'field_time';
+$handler->display->display_options['fields']['field_time']['table'] = 'field_data_field_time';
+$handler->display->display_options['fields']['field_time']['field'] = 'field_time';
+$handler->display->display_options['fields']['field_time']['label'] = '';
+$handler->display->display_options['fields']['field_time']['exclude'] = TRUE;
+$handler->display->display_options['fields']['field_time']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_time']['settings'] = array(
+  'format_type' => 'long',
+  'fromto' => 'both',
+  'multiple_number' => '',
+  'multiple_from' => '',
+  'multiple_to' => '',
+);
+/* Field: Content: Title */
+$handler->display->display_options['fields']['title']['id'] = 'title';
+$handler->display->display_options['fields']['title']['table'] = 'node';
+$handler->display->display_options['fields']['title']['field'] = 'title';
+$handler->display->display_options['fields']['title']['label'] = '';
+$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+$handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+/* Field: date to group */
+$handler->display->display_options['fields']['field_time_1']['id'] = 'field_time_1';
+$handler->display->display_options['fields']['field_time_1']['table'] = 'field_data_field_time';
+$handler->display->display_options['fields']['field_time_1']['field'] = 'field_time';
+$handler->display->display_options['fields']['field_time_1']['ui_name'] = 'date to group';
+$handler->display->display_options['fields']['field_time_1']['label'] = '';
+$handler->display->display_options['fields']['field_time_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['field_time_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_time_1']['settings'] = array(
+  'format_type' => 'date_only',
+  'fromto' => 'value',
+  'multiple_number' => '',
+  'multiple_from' => '',
+  'multiple_to' => '',
+);
+/* Field: time */
+$handler->display->display_options['fields']['field_time_2']['id'] = 'field_time_2';
+$handler->display->display_options['fields']['field_time_2']['table'] = 'field_data_field_time';
+$handler->display->display_options['fields']['field_time_2']['field'] = 'field_time';
+$handler->display->display_options['fields']['field_time_2']['ui_name'] = 'time';
+$handler->display->display_options['fields']['field_time_2']['label'] = '';
+$handler->display->display_options['fields']['field_time_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_time_2']['settings'] = array(
+  'format_type' => 'time_only',
+  'fromto' => 'both',
+  'multiple_number' => '',
+  'multiple_from' => '',
+  'multiple_to' => '',
+);
+/* Field: Content: Event Type */
+$handler->display->display_options['fields']['field_event_type']['id'] = 'field_event_type';
+$handler->display->display_options['fields']['field_event_type']['table'] = 'field_data_field_event_type';
+$handler->display->display_options['fields']['field_event_type']['field'] = 'field_event_type';
+$handler->display->display_options['fields']['field_event_type']['label'] = '';
+$handler->display->display_options['fields']['field_event_type']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_event_type']['type'] = 'taxonomy_term_reference_plain';
+/* Sort criterion: Content: When -  start date (field_time) */
+$handler->display->display_options['sorts']['field_time_value']['id'] = 'field_time_value';
+$handler->display->display_options['sorts']['field_time_value']['table'] = 'field_data_field_time';
+$handler->display->display_options['sorts']['field_time_value']['field'] = 'field_time_value';
+/* Contextual filter: User: Uid */
+$handler->display->display_options['arguments']['uid']['id'] = 'uid';
+$handler->display->display_options['arguments']['uid']['table'] = 'users';
+$handler->display->display_options['arguments']['uid']['field'] = 'uid';
+$handler->display->display_options['arguments']['uid']['relationship'] = 'uid';
+$handler->display->display_options['arguments']['uid']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['uid']['title_enable'] = TRUE;
+$handler->display->display_options['arguments']['uid']['title'] = '%1';
+$handler->display->display_options['arguments']['uid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['uid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['uid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['uid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['filter_groups']['groups'] = array(
+  1 => 'AND',
+  2 => 'OR',
+);
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Content: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+  'event' => 'event',
+);
+$handler->display->display_options['filters']['type']['group'] = 1;
+/* Filter criterion: Signup: Status: Open/Closed */
+$handler->display->display_options['filters']['status_1']['id'] = 'status_1';
+$handler->display->display_options['filters']['status_1']['table'] = 'signup';
+$handler->display->display_options['filters']['status_1']['field'] = 'status';
+$handler->display->display_options['filters']['status_1']['value'] = '1';
+$handler->display->display_options['filters']['status_1']['group'] = 1;
+/* Filter criterion: Content: Event Type (field_event_type) */
+$handler->display->display_options['filters']['field_event_type_tid']['id'] = 'field_event_type_tid';
+$handler->display->display_options['filters']['field_event_type_tid']['table'] = 'field_data_field_event_type';
+$handler->display->display_options['filters']['field_event_type_tid']['field'] = 'field_event_type_tid';
+$handler->display->display_options['filters']['field_event_type_tid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['field_event_type_tid']['expose']['operator_id'] = 'field_event_type_tid_op';
+$handler->display->display_options['filters']['field_event_type_tid']['expose']['operator'] = 'field_event_type_tid_op';
+$handler->display->display_options['filters']['field_event_type_tid']['expose']['identifier'] = 'field_event_type_tid';
+$handler->display->display_options['filters']['field_event_type_tid']['type'] = 'select';
+$handler->display->display_options['filters']['field_event_type_tid']['vocabulary'] = 'events';
+/* Filter criterion: User: Roles */
+$handler->display->display_options['filters']['rid']['id'] = 'rid';
+$handler->display->display_options['filters']['rid']['table'] = 'users_roles';
+$handler->display->display_options['filters']['rid']['field'] = 'rid';
+$handler->display->display_options['filters']['rid']['relationship'] = 'uid';
+$handler->display->display_options['filters']['rid']['value'] = array(
+  5 => '5',
+);
+
+/* Display: Posted Events */
+$handler = $view->new_display('page', 'Posted Events', 'page_1');
+$handler->display->display_options['display_description'] = 'List of events I have added to my schedule';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['path'] = 'venue/%/schedule';
+$handler->display->display_options['menu']['type'] = 'default tab';
+$handler->display->display_options['menu']['title'] = 'Schedule';
+$handler->display->display_options['menu']['weight'] = '-10';
+$handler->display->display_options['menu']['context'] = 0;
+$handler->display->display_options['tab_options']['type'] = 'normal';
+$handler->display->display_options['tab_options']['title'] = 'Venue info';
+$handler->display->display_options['tab_options']['weight'] = '0';

@@ -140,9 +140,9 @@ function user_relationships_rules_rules_event_info() {
       'label' => t('A user relationship has been removed'),
       'group' => t('Relationships'),
       'arguments' => array(
-        'requester'   => array('type' => 'user',  'label' => t('User who initiated the request')),
-        'requestee'   => array('type' => 'user',  'label' => t('User whose relationship is requested')),
-        'relationship' => array('type' => 'relationship',  'label' => t('The relationship object'))
+        'requester'   => array('type' => 'user',   'label' => t('User who initiated the request')),
+        'requestee'   => array('type' => 'user',   'label' => t('User whose relationship is requested')),
+        'relationship' => array('type' => 'relationship',   'label' => t('The relationship object'))
       )
     ),
   );
@@ -189,7 +189,8 @@ function user_relationships_rules_action_delete_relationship($settings) {
     'requestee_id' => $settings['requestee'] instanceof EntityDrupalWrapper ? $settings['requestee']->getIdentifier() : $settings['requestee']->uid,
     'rtid' => $settings['relationship_type'],
   );
-  $existing = user_relationships_load($args);// finding rid - this method can probably be made better
+  // Finding rid - this method can probably be made better.
+  $existing = user_relationships_load($args);
   if ($relationship = reset($existing)) {
     $deleted_by = $settings['requester'] instanceof EntityDrupalWrapper ? user_load($settings['requester']->getIdentifier()) : $settings['requester'];
     user_relationships_delete_relationship($relationship, $deleted_by, 'remove');
@@ -207,16 +208,8 @@ function user_relationships_rules_condition_relationship_has_type($settings) {
  * Condition Implementation: Users are related.
  */
 function user_relationships_rules_condition_users_are_related($user1, $user2, $relationship_types) {
-  // Get relationships between the two users
-  $relationships = user_relationships_load(array('between' => array($user1 instanceof EntityDrupalWrapper ? $user1->getIdentifier() : $user1->uid, $user2 instanceof EntityDrupalWrapper ? $user2->getIdentifier() : $user2->uid)));
-
-  // Keep only checked relationships.
-  if (!empty($relationships) && !empty($relationship_types)) {
-    foreach ($relationships as $rtid => $relationship) {
-      if (!in_array($rtid, $relationship_types)) {
-        unset($relationships[$rtid]);
-      }
-    }
-  }
+  // Get the approved relationships between the two users and the specified
+  // relationship types.
+  $relationships = user_relationships_load(array('approved' => 1, 'rtid' => $relationship_types, 'between' => array($user1 instanceof EntityDrupalWrapper ? $user1->getIdentifier() : $user1->uid, $user2 instanceof EntityDrupalWrapper ? $user2->getIdentifier() : $user2->uid)));
   return !empty($relationships);
 }

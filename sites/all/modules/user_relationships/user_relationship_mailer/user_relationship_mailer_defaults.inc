@@ -35,6 +35,15 @@ function _user_relationship_mailer_ops_translations() {
 function user_relationship_mailer_replacements($relationship = NULL) {
   $requester = isset($relationship->requester) ? $relationship->requester : NULL;
   $requestee = isset($relationship->requestee) ? $relationship->requestee : NULL;
+  //MMhack load profile of $requester and $requestee objects
+  if($requester->uid > 0){
+    $profile_requester = profile2_load_by_user($requester->uid);
+  }
+  if($requestee->uid > 0){
+    $profile_requestee = profile2_load_by_user($requestee->uid);
+  }
+  //MMhackend
+
   //load relationship type, if necessary
   if (!isset($relationship->relationship_type) && isset($relationship->rtid)) {
     $relationship->relationship_type = user_relationships_type_load($relationship->rtid);
@@ -42,14 +51,16 @@ function user_relationship_mailer_replacements($relationship = NULL) {
   $replacements = array(
     '@site'                     => variable_get('site_name', 'Drupal'),
     '@site_url'                 => $GLOBALS['base_url'],
-
-    '@requester_name'           => isset($requester->name) ? format_username($requester) : '',
+    //MMhack requester_name
+    '@requester_name'           => !empty($profile_requester['individual']->field_name['und'][0]['safe_value']) ? $profile_requester['individual']->field_name['und'][0]['safe_value']: t('(No name)'),    
+    //'@requester_name'           => isset($requester->name) ? format_username($requester) : '',
     '@requester_link'           => isset($requester->uid) ? theme('user_relationships_user_link', array('uid' => $requester->uid)) : '',
     '@requester_uid'            => isset($requester->uid) ? $requester->uid : '',
     '@requester_list_link'      => isset($requester->uid) ? url("user/{$requester->uid}/relationships/list", array('absolute' => TRUE)) : '',
-    '@requester_pending_link'   => isset($requester->uid) ? url("user/{$requester->uid}/relationships/sent", array('absolute' => TRUE)) : '',
-
-    '@requestee_name'           => isset($requestee->name) ? format_username($requestee) : '',
+    '@requester_pending_link'   => isset($requester->uid) ? url("user/{$requester->uid}/relationships/sent", array('absolute' => TRUE)) : '',    
+    //MMhack requestee_name
+    '@requestee_name'           => !empty($profile_requestee['individual']->field_name['und'][0]['safe_value']) ? $profile_requestee['individual']->field_name['und'][0]['safe_value']: t('(No name)'),    
+    //'@requestee_name'           => isset($requestee->name) ? format_username($requestee) : '',
     '@requestee_link'           => isset($requestee->uid) ? theme('user_relationships_user_link', array('uid' => $requestee->uid)) : '',
     '@requestee_uid'            => isset($requestee->uid) ? $requestee->uid : '',
     '@requestee_list_link'      => isset($requestee->uid) ? url("user/{$requestee->uid}/relationships/list", array('absolute' => TRUE)) : '',

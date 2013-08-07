@@ -8,9 +8,9 @@ files[] = location_phone.install
 files[] = location_phone.views.inc
 
 
-; Information added by drupal.org packaging script on 2012-02-04
-version = "7.x-3.x-dev"
+; Information added by drupal.org packaging script on 2013-06-30
+version = "7.x-3.0-rc2"
 core = "7.x"
 project = "location"
-datestamp = "1328358044"
+datestamp = "1372581057"
 

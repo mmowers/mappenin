@@ -1,0 +1,18 @@
+<?php
+// $Id: feeds_selfnode_processor.module,v 1.1.2.1 2011/02/01 09:53:28 twistor Exp $
+
+function feeds_selfnode_processor_feeds_plugins() {
+  $info = array();
+  $info['FeedsSelfNodeProcessor'] = array(
+    'name' => 'Self Node processor',
+    'description' => 'Populate fields on a feed node.',
+    'help' => 'Update the fields of a feed node from parsed content.',
+    'handler' => array(
+      'parent' => 'FeedsNodeProcessor',
+      'class' => 'FeedsSelfNodeProcessor',
+      'file' => 'FeedsSelfNodeProcessor.inc',
+      'path' => drupal_get_path('module', 'feeds_selfnode_processor'),
+    ),
+  );
+  return $info;
+}

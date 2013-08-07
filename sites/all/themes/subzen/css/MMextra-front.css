@@ -13,41 +13,28 @@
   margin-left: 0px;
   width: 100%;
 }
-
-#views-exposed-form-frontmap-page-1 .views-widget {
-  display: none;
-}
-
-#views-exposed-form-frontmap-page-1 div#edit-tid-wrapper:hover .views-widget {
-  display: block;
+#views-exposed-form-frontmap-page-1 {
   position: absolute;
+  z-index: 5;
+  background: white;
+  border: grey solid 1px;
+}
+#views-exposed-form-frontmap-page-1 div#edit-tid-wrapper .views-widget,
+#views-exposed-form-frontmap-page-1 div#edit-date-filter-wrapper .views-widget,
+#views-exposed-form-frontmap-page-1 div#edit-date-filter-1-wrapper .views-widget 
+{
+  display: block;
+/*  position: absolute; */
   z-index: 10;
   background: white;
   opacity: 1;
+  border: grey solid 1px;
 }
 
-
-
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-wrapper:hover .views-widget {
-  display: block;
-  position: absolute;
-  z-index: 10;
-  background: white;
-  opacity: 1;
-}
-
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-wrapper:hover .views-widget .container-inline-date .form-item .form-item {
-  clear: both;
-}
-
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-1-wrapper:hover .views-widget {
-  display: block;
-  position: absolute;
-  z-index: 10;
-  background: white;
-  opacity: 1;
-}
-#views-exposed-form-frontmap-page-1 div#edit-date-filter-1-wrapper:hover .views-widget .container-inline-date .form-item .form-item {
+#views-exposed-form-frontmap-page-1 div#edit-date-filter-wrapper .views-widget .container-inline-date .form-item .form-item,
+#views-exposed-form-frontmap-page-1 div#edit-date-filter-1-wrapper .views-widget .container-inline-date .form-item .form-item,
+.views-widget-sort-by
+{
   clear: both;
 }
 
@@ -58,19 +45,70 @@ input#edit-submit-frontmap {
 
 .view-id-frontmap .view-display-id-attachment_1{
   float: left;
-  width: 400px;
+  width: 300px;
 }
 
 .view-id-frontmap .view-display-id-attachment_1 table{
   margin:0;
 }
 
+.view-id-frontmap .view-display-id-attachment_1 table th{
+  padding-right:5px;
+  padding-left: 5px;
+  text-align: center;
+}
+
+.view-id-frontmap .view-display-id-attachment_1 table td{
+  padding-right:5px;
+}
 
 #views-exposed-form-frontmap-page-1 .views-exposed-widget{
   margin-right: 20px;
 }
 
-#views-exposed-form-frontmap-page-1 .views-exposed-widget label{
-  color: purple;
-  text-decoration: underline;
+
+#views-exposed-form-frontmap-page-1 .views-exposed-widget>label{
+/*  text-decoration: underline;
+  color: blue;
+  cursor: pointer;  */
+  
+} 
+
+#switchviewbutton{
+/*  margin: 0;
+  position: absolute;
+  top: 20px;
+  left: 400px;
+  width: 75px;
+  color: blue;
+  text-decoration: underline; */
+  cursor: pointer;
+  float: left;
+  margin-left: 450px;
+}
+
+#searchoptions{
+ /* margin: 0;
+  position: absolute;
+  top: 20px;
+  left: 525px;
+  width: 50px;
+  color: blue;
+  text-decoration: underline; */
+  cursor: pointer;
+}
+
+.view-frontmap .view-display-id-attachment_2 .views-row {
+  float: left;
+  margin-left: 40px;
+  margin-bottom: 30px;
+}
+
+.view-frontmap #edit-distance-wrapper, .view-frontmap #edit-submit-frontmap,
+.view-frontmap .form-item.date-spacer, .views-widget-sort-order{
+  display: none;
+}
+
+.view-frontmap #address-entered{
+  width: 300px;
 }

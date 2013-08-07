@@ -1,0 +1,376 @@
+<?php
+
+$view = new view();
+$view->name = 'frontmap';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'node';
+$view->human_name = 'FrontMap';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['css_class'] = 'common-event-list';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['distinct'] = TRUE;
+$handler->display->display_options['query']['options']['query_comment'] = FALSE;
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '20';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'fields';
+$handler->display->display_options['row_options']['inline'] = array(
+  'field_event_type' => 'field_event_type',
+);
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['content'] = 'Sorry! No results matched your search.  Try searching a broader time range or allowing more distance from your address.
+
+  "You cannot turn the wind, so turn the sail"- African proverb';
+$handler->display->display_options['empty']['area']['format'] = 'plain_text';
+/* Relationship: Content: Author */
+$handler->display->display_options['relationships']['uid']['id'] = 'uid';
+$handler->display->display_options['relationships']['uid']['table'] = 'node';
+$handler->display->display_options['relationships']['uid']['field'] = 'uid';
+/* Relationship: Signup: User */
+$handler->display->display_options['relationships']['uid_1']['id'] = 'uid_1';
+$handler->display->display_options['relationships']['uid_1']['table'] = 'signup_log';
+$handler->display->display_options['relationships']['uid_1']['field'] = 'uid';
+/* Relationship: User: Profile */
+$handler->display->display_options['relationships']['profile']['id'] = 'profile';
+$handler->display->display_options['relationships']['profile']['table'] = 'users';
+$handler->display->display_options['relationships']['profile']['field'] = 'profile';
+$handler->display->display_options['relationships']['profile']['relationship'] = 'uid';
+$handler->display->display_options['relationships']['profile']['bundle_types'] = array(
+  'venue' => 'venue',
+);
+/* Field: Content: Title */
+$handler->display->display_options['fields']['title']['id'] = 'title';
+$handler->display->display_options['fields']['title']['table'] = 'node';
+$handler->display->display_options['fields']['title']['field'] = 'title';
+$handler->display->display_options['fields']['title']['label'] = '';
+$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+$handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+/* Field: Content: Author uid */
+$handler->display->display_options['fields']['uid']['id'] = 'uid';
+$handler->display->display_options['fields']['uid']['table'] = 'node';
+$handler->display->display_options['fields']['uid']['field'] = 'uid';
+$handler->display->display_options['fields']['uid']['label'] = '';
+$handler->display->display_options['fields']['uid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['uid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['uid']['link_to_user'] = FALSE;
+/* Field: Profile: Venue name */
+$handler->display->display_options['fields']['field_ven_name']['id'] = 'field_ven_name';
+$handler->display->display_options['fields']['field_ven_name']['table'] = 'field_data_field_ven_name';
+$handler->display->display_options['fields']['field_ven_name']['field'] = 'field_ven_name';
+$handler->display->display_options['fields']['field_ven_name']['relationship'] = 'profile';
+$handler->display->display_options['fields']['field_ven_name']['label'] = '';
+$handler->display->display_options['fields']['field_ven_name']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['field_ven_name']['alter']['path'] = 'venue/[uid]';
+$handler->display->display_options['fields']['field_ven_name']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_ven_name']['hide_alter_empty'] = FALSE;
+/* Field: Content: When */
+$handler->display->display_options['fields']['field_time']['id'] = 'field_time';
+$handler->display->display_options['fields']['field_time']['table'] = 'field_data_field_time';
+$handler->display->display_options['fields']['field_time']['field'] = 'field_time';
+$handler->display->display_options['fields']['field_time']['label'] = '';
+$handler->display->display_options['fields']['field_time']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_time']['settings'] = array(
+  'format_type' => 'just_right',
+  'fromto' => 'both',
+  'multiple_number' => '',
+  'multiple_from' => '',
+  'multiple_to' => '',
+  'show_repeat_rule' => 'show',
+);
+/* Field: time */
+$handler->display->display_options['fields']['field_time_1']['id'] = 'field_time_1';
+$handler->display->display_options['fields']['field_time_1']['table'] = 'field_data_field_time';
+$handler->display->display_options['fields']['field_time_1']['field'] = 'field_time';
+$handler->display->display_options['fields']['field_time_1']['ui_name'] = 'time';
+$handler->display->display_options['fields']['field_time_1']['label'] = '';
+$handler->display->display_options['fields']['field_time_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['field_time_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_time_1']['settings'] = array(
+  'format_type' => 'time_only',
+  'fromto' => 'both',
+  'multiple_number' => '',
+  'multiple_from' => '',
+  'multiple_to' => '',
+  'show_repeat_rule' => 'show',
+);
+/* Field: Content: Event Type */
+$handler->display->display_options['fields']['field_event_type']['id'] = 'field_event_type';
+$handler->display->display_options['fields']['field_event_type']['table'] = 'field_data_field_event_type';
+$handler->display->display_options['fields']['field_event_type']['field'] = 'field_event_type';
+$handler->display->display_options['fields']['field_event_type']['label'] = '';
+$handler->display->display_options['fields']['field_event_type']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_event_type']['type'] = 'taxonomy_term_reference_plain';
+/* Field: Location: Latitude */
+$handler->display->display_options['fields']['latitude']['id'] = 'latitude';
+$handler->display->display_options['fields']['latitude']['table'] = 'location';
+$handler->display->display_options['fields']['latitude']['field'] = 'latitude';
+$handler->display->display_options['fields']['latitude']['label'] = '';
+$handler->display->display_options['fields']['latitude']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['latitude']['style'] = 'dd';
+/* Field: Location: Longitude */
+$handler->display->display_options['fields']['longitude']['id'] = 'longitude';
+$handler->display->display_options['fields']['longitude']['table'] = 'location';
+$handler->display->display_options['fields']['longitude']['field'] = 'longitude';
+$handler->display->display_options['fields']['longitude']['label'] = '';
+$handler->display->display_options['fields']['longitude']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['longitude']['style'] = 'dd';
+/* Sort criterion: Content: When -  start date (field_time) */
+$handler->display->display_options['sorts']['field_time_value']['id'] = 'field_time_value';
+$handler->display->display_options['sorts']['field_time_value']['table'] = 'field_data_field_time';
+$handler->display->display_options['sorts']['field_time_value']['field'] = 'field_time_value';
+$handler->display->display_options['sorts']['field_time_value']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['field_time_value']['expose']['label'] = 'Start time';
+/* Sort criterion: Location: Distance / Proximity */
+$handler->display->display_options['sorts']['distance']['id'] = 'distance';
+$handler->display->display_options['sorts']['distance']['table'] = 'location';
+$handler->display->display_options['sorts']['distance']['field'] = 'distance';
+$handler->display->display_options['sorts']['distance']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['distance']['expose']['label'] = 'Distance';
+$handler->display->display_options['sorts']['distance']['origin'] = 'tied';
+$handler->display->display_options['filter_groups']['groups'] = array(
+  1 => 'AND',
+  2 => 'OR',
+);
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Content: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+  'event' => 'event',
+);
+$handler->display->display_options['filters']['type']['group'] = 1;
+/* Filter criterion: Content: Has taxonomy term */
+$handler->display->display_options['filters']['tid']['id'] = 'tid';
+$handler->display->display_options['filters']['tid']['table'] = 'taxonomy_index';
+$handler->display->display_options['filters']['tid']['field'] = 'tid';
+$handler->display->display_options['filters']['tid']['group'] = 1;
+$handler->display->display_options['filters']['tid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['tid']['expose']['operator_id'] = 'tid_op';
+$handler->display->display_options['filters']['tid']['expose']['label'] = 'Event Type:';
+$handler->display->display_options['filters']['tid']['expose']['operator'] = 'tid_op';
+$handler->display->display_options['filters']['tid']['expose']['identifier'] = 'tid';
+$handler->display->display_options['filters']['tid']['expose']['remember'] = TRUE;
+$handler->display->display_options['filters']['tid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+);
+$handler->display->display_options['filters']['tid']['type'] = 'select';
+$handler->display->display_options['filters']['tid']['vocabulary'] = 'events';
+/* Filter criterion: Date: Date (node) */
+$handler->display->display_options['filters']['date_filter']['id'] = 'date_filter';
+$handler->display->display_options['filters']['date_filter']['table'] = 'node';
+$handler->display->display_options['filters']['date_filter']['field'] = 'date_filter';
+$handler->display->display_options['filters']['date_filter']['operator'] = '>';
+$handler->display->display_options['filters']['date_filter']['value']['value'] = '2012-06-10 11:00';
+$handler->display->display_options['filters']['date_filter']['group'] = 1;
+$handler->display->display_options['filters']['date_filter']['exposed'] = TRUE;
+$handler->display->display_options['filters']['date_filter']['expose']['operator_id'] = 'date_filter_op';
+$handler->display->display_options['filters']['date_filter']['expose']['operator'] = 'date_filter_op';
+$handler->display->display_options['filters']['date_filter']['expose']['identifier'] = 'date_filter';
+$handler->display->display_options['filters']['date_filter']['granularity'] = 'minute';
+$handler->display->display_options['filters']['date_filter']['year_range'] = '-0:+1';
+$handler->display->display_options['filters']['date_filter']['date_fields'] = array(
+  'field_data_field_time.field_time_value2' => 'field_data_field_time.field_time_value2',
+);
+$handler->display->display_options['filters']['date_filter']['date_method'] = 'AND';
+/* Filter criterion: Date: Date (node) */
+$handler->display->display_options['filters']['date_filter_1']['id'] = 'date_filter_1';
+$handler->display->display_options['filters']['date_filter_1']['table'] = 'node';
+$handler->display->display_options['filters']['date_filter_1']['field'] = 'date_filter';
+$handler->display->display_options['filters']['date_filter_1']['operator'] = '<';
+$handler->display->display_options['filters']['date_filter_1']['value']['value'] = '2012-06-10 11:15';
+$handler->display->display_options['filters']['date_filter_1']['group'] = 1;
+$handler->display->display_options['filters']['date_filter_1']['exposed'] = TRUE;
+$handler->display->display_options['filters']['date_filter_1']['expose']['operator_id'] = 'date_filter_1_op';
+$handler->display->display_options['filters']['date_filter_1']['expose']['operator'] = 'date_filter_1_op';
+$handler->display->display_options['filters']['date_filter_1']['expose']['identifier'] = 'date_filter_1';
+$handler->display->display_options['filters']['date_filter_1']['granularity'] = 'minute';
+$handler->display->display_options['filters']['date_filter_1']['year_range'] = '-0:+1';
+$handler->display->display_options['filters']['date_filter_1']['date_fields'] = array(
+  'field_data_field_time.field_time_value' => 'field_data_field_time.field_time_value',
+);
+$handler->display->display_options['filters']['date_filter_1']['date_method'] = 'AND';
+/* Filter criterion: Location: Distance / Proximity */
+$handler->display->display_options['filters']['distance']['id'] = 'distance';
+$handler->display->display_options['filters']['distance']['table'] = 'location';
+$handler->display->display_options['filters']['distance']['field'] = 'distance';
+$handler->display->display_options['filters']['distance']['operator'] = 'dist';
+$handler->display->display_options['filters']['distance']['value'] = array(
+  'latitude' => '37.426',
+  'longitude' => '-122.17',
+  'postal_code' => '',
+  'country' => '',
+  'php_code' => '',
+  'nid_arg' => '',
+  'nid_loc_field' => 'node',
+  'uid_arg' => '',
+  'search_distance' => '3',
+  'search_units' => 'mile',
+);
+$handler->display->display_options['filters']['distance']['group'] = 1;
+$handler->display->display_options['filters']['distance']['exposed'] = TRUE;
+$handler->display->display_options['filters']['distance']['expose']['operator_id'] = 'distance_op';
+$handler->display->display_options['filters']['distance']['expose']['operator'] = 'distance_op';
+$handler->display->display_options['filters']['distance']['expose']['identifier'] = 'distance';
+$handler->display->display_options['filters']['distance']['expose']['remember'] = TRUE;
+$handler->display->display_options['filters']['distance']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+);
+$handler->display->display_options['filters']['distance']['expose']['gmap_macro'] = array(
+  'default' => '[gmap ]',
+);
+$handler->display->display_options['filters']['distance']['expose']['user_location_choose'] = array(
+  'default' => FALSE,
+);
+$handler->display->display_options['filters']['distance']['origin'] = 'static';
+/* Filter criterion: Signup: Status: Open/Closed */
+$handler->display->display_options['filters']['status_1']['id'] = 'status_1';
+$handler->display->display_options['filters']['status_1']['table'] = 'signup';
+$handler->display->display_options['filters']['status_1']['field'] = 'status';
+$handler->display->display_options['filters']['status_1']['value'] = '1';
+$handler->display->display_options['filters']['status_1']['group'] = 1;
+/* Filter criterion: User: Roles */
+$handler->display->display_options['filters']['rid']['id'] = 'rid';
+$handler->display->display_options['filters']['rid']['table'] = 'users_roles';
+$handler->display->display_options['filters']['rid']['field'] = 'rid';
+$handler->display->display_options['filters']['rid']['relationship'] = 'uid';
+$handler->display->display_options['filters']['rid']['value'] = array(
+  'all' => 'all',
+  4 => '4',
+  5 => '5',
+);
+$handler->display->display_options['filters']['rid']['group'] = 1;
+$handler->display->display_options['filters']['rid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['rid']['expose']['operator_id'] = 'rid_op';
+$handler->display->display_options['filters']['rid']['expose']['label'] = 'Show only events posted by';
+$handler->display->display_options['filters']['rid']['expose']['operator'] = 'rid_op';
+$handler->display->display_options['filters']['rid']['expose']['identifier'] = 'rid';
+$handler->display->display_options['filters']['rid']['expose']['remember'] = TRUE;
+$handler->display->display_options['filters']['rid']['expose']['reduce'] = TRUE;
+/* Filter criterion: User relationships: Requester user is current user */
+$handler->display->display_options['filters']['requester_id_current']['id'] = 'requester_id_current';
+$handler->display->display_options['filters']['requester_id_current']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['requester_id_current']['field'] = 'requester_id_current';
+$handler->display->display_options['filters']['requester_id_current']['relationship'] = 'uid';
+$handler->display->display_options['filters']['requester_id_current']['value'] = 'All';
+$handler->display->display_options['filters']['requester_id_current']['group'] = 1;
+$handler->display->display_options['filters']['requester_id_current']['exposed'] = TRUE;
+$handler->display->display_options['filters']['requester_id_current']['expose']['operator_id'] = '';
+$handler->display->display_options['filters']['requester_id_current']['expose']['label'] = 'Show only events at favorite venues';
+$handler->display->display_options['filters']['requester_id_current']['expose']['operator'] = 'requester_id_current_op';
+$handler->display->display_options['filters']['requester_id_current']['expose']['identifier'] = 'fave';
+$handler->display->display_options['filters']['requester_id_current']['expose']['remember'] = TRUE;
+$handler->display->display_options['filters']['requester_id_current']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+);
+/* Filter criterion: User relationships: Requestee user is current user */
+$handler->display->display_options['filters']['requestee_id_current']['id'] = 'requestee_id_current';
+$handler->display->display_options['filters']['requestee_id_current']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['requestee_id_current']['field'] = 'requestee_id_current';
+$handler->display->display_options['filters']['requestee_id_current']['relationship'] = 'uid_1';
+$handler->display->display_options['filters']['requestee_id_current']['value'] = 'All';
+$handler->display->display_options['filters']['requestee_id_current']['group'] = 1;
+$handler->display->display_options['filters']['requestee_id_current']['exposed'] = TRUE;
+$handler->display->display_options['filters']['requestee_id_current']['expose']['operator_id'] = '';
+$handler->display->display_options['filters']['requestee_id_current']['expose']['label'] = 'Is the logged in user';
+$handler->display->display_options['filters']['requestee_id_current']['expose']['operator'] = 'requestee_id_current_op';
+$handler->display->display_options['filters']['requestee_id_current']['expose']['identifier'] = 'friend';
+$handler->display->display_options['filters']['requestee_id_current']['expose']['remember'] = TRUE;
+$handler->display->display_options['filters']['requestee_id_current']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+);
+/* Filter criterion: Content: Title */
+$handler->display->display_options['filters']['title']['id'] = 'title';
+$handler->display->display_options['filters']['title']['table'] = 'node';
+$handler->display->display_options['filters']['title']['field'] = 'title';
+$handler->display->display_options['filters']['title']['operator'] = 'word';
+$handler->display->display_options['filters']['title']['group'] = 1;
+$handler->display->display_options['filters']['title']['exposed'] = TRUE;
+$handler->display->display_options['filters']['title']['expose']['operator_id'] = 'title_op';
+$handler->display->display_options['filters']['title']['expose']['label'] = 'Narrow search by keyword';
+$handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
+$handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
+/* Filter criterion: (faves) faves or friends */
+$handler->display->display_options['filters']['requester_id_current_2']['id'] = 'requester_id_current_2';
+$handler->display->display_options['filters']['requester_id_current_2']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['requester_id_current_2']['field'] = 'requester_id_current';
+$handler->display->display_options['filters']['requester_id_current_2']['relationship'] = 'uid';
+$handler->display->display_options['filters']['requester_id_current_2']['ui_name'] = '(faves) faves or friends';
+$handler->display->display_options['filters']['requester_id_current_2']['value'] = 'All';
+$handler->display->display_options['filters']['requester_id_current_2']['group'] = 2;
+$handler->display->display_options['filters']['requester_id_current_2']['exposed'] = TRUE;
+$handler->display->display_options['filters']['requester_id_current_2']['expose']['operator_id'] = '';
+$handler->display->display_options['filters']['requester_id_current_2']['expose']['label'] = 'Is the logged in user';
+$handler->display->display_options['filters']['requester_id_current_2']['expose']['operator'] = 'requester_id_current_2_op';
+$handler->display->display_options['filters']['requester_id_current_2']['expose']['identifier'] = 'fave_fave_or_friend';
+$handler->display->display_options['filters']['requester_id_current_2']['expose']['remember'] = TRUE;
+$handler->display->display_options['filters']['requester_id_current_2']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+);
+/* Filter criterion: (friend-requestee) faves or friends */
+$handler->display->display_options['filters']['requestee_id_current_1']['id'] = 'requestee_id_current_1';
+$handler->display->display_options['filters']['requestee_id_current_1']['table'] = 'user_relationships';
+$handler->display->display_options['filters']['requestee_id_current_1']['field'] = 'requestee_id_current';
+$handler->display->display_options['filters']['requestee_id_current_1']['relationship'] = 'uid_1';
+$handler->display->display_options['filters']['requestee_id_current_1']['ui_name'] = '(friend-requestee) faves or friends';
+$handler->display->display_options['filters']['requestee_id_current_1']['value'] = 'All';
+$handler->display->display_options['filters']['requestee_id_current_1']['group'] = 2;
+$handler->display->display_options['filters']['requestee_id_current_1']['exposed'] = TRUE;
+$handler->display->display_options['filters']['requestee_id_current_1']['expose']['operator_id'] = '';
+$handler->display->display_options['filters']['requestee_id_current_1']['expose']['label'] = 'Is the logged in user';
+$handler->display->display_options['filters']['requestee_id_current_1']['expose']['operator'] = 'requestee_id_current_1_op';
+$handler->display->display_options['filters']['requestee_id_current_1']['expose']['identifier'] = 'friend_fave_or_friend';
+$handler->display->display_options['filters']['requestee_id_current_1']['expose']['remember'] = TRUE;
+$handler->display->display_options['filters']['requestee_id_current_1']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+);
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page_1');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['path'] = 'frontmap';

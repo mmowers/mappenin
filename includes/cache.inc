@@ -80,43 +80,15 @@ function cache_get_multiple(array &$cids, $bin = 'cache') {
  * same name. Other implementations might want to store several bins in data
  * structures that get flushed together. While it is not a problem for most
  * cache bins if the entries in them are flushed before their expire time, some
- * might break functionality or are extremely expensive to recalculate. These
- * will be marked with a (*). The other bins expired automatically by core.
- * Contributed modules can add additional bins and get them expired
- * automatically by implementing hook_flush_caches().
- *
- *  - cache: Generic cache storage bin (used for variables, theme registry,
- *  locale date, list of simpletest tests etc).
- *
- *  - cache_block: Stores the content of various blocks.
- *
- *  - cache field: Stores the field data belonging to a given object.
- *
- *  - cache_filter: Stores filtered pieces of content.
- *
- *  - cache_form(*): Stores multistep forms. Flushing this bin means that some
- *  forms displayed to users lose their state and the data already submitted
- *  to them.
- *
- *  - cache_menu: Stores the structure of visible navigation menus per page.
- *
- *  - cache_page: Stores generated pages for anonymous users. It is flushed
- *  very often, whenever a page changes, at least for every ode and comment
- *  submission. This is the only bin affected by the page cache setting on
- *  the administrator panel.
- *
- *  - cache path: Stores the system paths that have an alias.
- *
- *  - cache update(*): Stores available releases. The update server (for
- *  example, drupal.org) needs to produce the relevant XML for every project
- *  installed on the current site. As this is different for (almost) every
- *  site, it's very expensive to recalculate for the update server.
+ * might break functionality or are extremely expensive to recalculate. The
+ * other bins are expired automatically by core. Contributed modules can add
+ * additional bins and get them expired automatically by implementing
+ * hook_flush_caches().
  *
  * The reasons for having several bins are as follows:
- *
- * - smaller bins mean smaller database tables and allow for faster selects and
- *   inserts
- * - we try to put fast changing cache items and rather static ones into
+ * - Smaller bins mean smaller database tables and allow for faster selects and
+ *   inserts.
+ * - We try to put fast changing cache items and rather static ones into
  *   different bins. The effect is that only the fast changing bins will need a
  *   lot of writes to disk. The more static bins will also be better cacheable
  *   with MySQL's query cache.
@@ -125,13 +97,27 @@ function cache_get_multiple(array &$cids, $bin = 'cache') {
  *   The cache ID of the data to store.
  * @param $data
  *   The data to store in the cache. Complex data types will be automatically
- *   serialized before insertion.
- *   Strings will be stored as plain text and not serialized.
+ *   serialized before insertion. Strings will be stored as plain text and are
+ *   not serialized.
  * @param $bin
- *   The cache bin to store the data in. Valid core values are 'cache_block',
- *   'cache_bootstrap', 'cache_field', 'cache_filter', 'cache_form',
- *   'cache_menu', 'cache_page', 'cache_update' or 'cache' for the default
- *   cache.
+ *   The cache bin to store the data in. Valid core values are:
+ *   - cache: (default) Generic cache storage bin (used for theme registry,
+ *     locale date, list of simpletest tests, etc.).
+ *   - cache_block: Stores the content of various blocks.
+ *   - cache_bootstrap: Stores the class registry, the system list of modules,
+ *     the list of which modules implement which hooks, and the Drupal variable
+ *     list.
+ *   - cache_field: Stores the field data belonging to a given object.
+ *   - cache_filter: Stores filtered pieces of content.
+ *   - cache_form: Stores multistep forms. Flushing this bin means that some
+ *     forms displayed to users lose their state and the data already submitted
+ *     to them. This bin should not be flushed before its expired time.
+ *   - cache_menu: Stores the structure of visible navigation menus per page.
+ *   - cache_page: Stores generated pages for anonymous users. It is flushed
+ *     very often, whenever a page changes, at least for every node and comment
+ *     submission. This is the only bin affected by the page cache setting on
+ *     the administrator panel.
+ *   - cache_path: Stores the system paths that have an alias.
  * @param $expire
  *   One of the following values:
  *   - CACHE_PERMANENT: Indicates that the item should never be removed unless
@@ -141,6 +127,7 @@ function cache_get_multiple(array &$cids, $bin = 'cache') {
  *   - A Unix timestamp: Indicates that the item should be kept at least until
  *     the given time, after which it behaves like CACHE_TEMPORARY.
  *
+ * @see _update_cache_set()
  * @see cache_get()
  */
 function cache_set($cid, $data, $bin = 'cache', $expire = CACHE_PERMANENT) {
@@ -379,11 +366,31 @@ class DrupalDatabaseCache implements DrupalCacheInterface {
    *   The bin being requested.
    */
   protected function garbageCollection() {
-    global $user;
+    $cache_lifetime = variable_get('cache_lifetime', 0);
 
-    // Garbage collection necessary when enforcing a minimum cache lifetime.
+    // Clean-up the per-user cache expiration session data, so that the session
+    // handler can properly clean-up the session data for anonymous users.
+    if (isset($_SESSION['cache_expiration'])) {
+      $expire = REQUEST_TIME - $cache_lifetime;
+      foreach ($_SESSION['cache_expiration'] as $bin => $timestamp) {
+        if ($timestamp < $expire) {
+          unset($_SESSION['cache_expiration'][$bin]);
+        }
+      }
+      if (!$_SESSION['cache_expiration']) {
+        unset($_SESSION['cache_expiration']);
+      }
+    }
+
+    // Garbage collection of temporary items is only necessary when enforcing
+    // a minimum cache lifetime.
+    if (!$cache_lifetime) {
+      return;
+    }
+    // When cache lifetime is in force, avoid running garbage collection too
+    // often since this will remove temporary cache items indiscriminately.
     $cache_flush = variable_get('cache_flush_' . $this->bin, 0);
-    if ($cache_flush && ($cache_flush + variable_get('cache_lifetime', 0) <= REQUEST_TIME)) {
+    if ($cache_flush && ($cache_flush + $cache_lifetime <= REQUEST_TIME)) {
       // Reset the variable immediately to prevent a meltdown in heavy load situations.
       variable_set('cache_flush_' . $this->bin, 0);
       // Time to flush old cache data
@@ -413,17 +420,16 @@ class DrupalDatabaseCache implements DrupalCacheInterface {
     if (!isset($cache->data)) {
       return FALSE;
     }
-    // If enforcing a minimum cache lifetime, validate that the data is
-    // currently valid for this user before we return it by making sure the cache
-    // entry was created before the timestamp in the current session's cache
-    // timer. The cache variable is loaded into the $user object by _drupal_session_read()
-    // in session.inc. If the data is permanent or we're not enforcing a minimum
-    // cache lifetime always return the cached data.
-    if ($cache->expire != CACHE_PERMANENT && variable_get('cache_lifetime', 0) && $user->cache > $cache->created) {
-      // This cache data is too old and thus not valid for us, ignore it.
+    // If the cached data is temporary and subject to a per-user minimum
+    // lifetime, compare the cache entry timestamp with the user session
+    // cache_expiration timestamp. If the cache entry is too old, ignore it.
+    if ($cache->expire != CACHE_PERMANENT && variable_get('cache_lifetime', 0) && isset($_SESSION['cache_expiration'][$this->bin]) && $_SESSION['cache_expiration'][$this->bin] > $cache->created) {
+      // Ignore cache data that is too old and thus not valid for this user.
       return FALSE;
     }
 
+    // If the data is permanent or not subject to a minimum cache lifetime,
+    // unserialize and return the cached data.
     if ($cache->serialized) {
       $cache->data = unserialize($cache->data);
     }
@@ -468,11 +474,10 @@ class DrupalDatabaseCache implements DrupalCacheInterface {
 
     if (empty($cid)) {
       if (variable_get('cache_lifetime', 0)) {
-        // We store the time in the current user's $user->cache variable which
-        // will be saved into the sessions bin by _drupal_session_write(). We then
-        // simulate that the cache was flushed for this user by not returning
-        // cached data that was cached before the timestamp.
-        $user->cache = REQUEST_TIME;
+        // We store the time in the current user's session. We then simulate
+        // that the cache was flushed for this user by not returning cached
+        // data that was cached before the timestamp.
+        $_SESSION['cache_expiration'][$this->bin] = REQUEST_TIME;
 
         $cache_flush = variable_get('cache_flush_' . $this->bin, 0);
         if ($cache_flush == 0) {

@@ -13,14 +13,14 @@
  * results by signup status, which is rendered at the top of the page by
  * default.
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables containing:
  *   - 'filter_status_form': HTML representation of the signup status filter
  *     form.
  *   - 'signup_admin_form': HTML representation of the main signup
  *     administration form.
  *
- * @return
+ * @return string
  *   Themed output for the signup administration overview page.
  */
 function theme_signup_admin_page($variables) {

@@ -73,6 +73,10 @@ function subzen_preprocess_html(&$variables,$hook) {
   //MRM copying from dgd7 page 344 to add conditional stylesheet for frontmap
   if($variables['is_front']){
     drupal_add_css(path_to_theme() . '/css/MMextra-front.css', array('weight' => CSS_THEME));
+    drupal_add_js(path_to_theme() . '/js/MMextra-front.js'
+      ,array('type' => 'file', 'scope' => 'footer', 'weight' => 100, 'group' => JS_THEME)
+    );
+    drupal_add_js("http://maps.google.com/maps/api/js?sensor=false");
   }
 
   // The body tag's classes are controlled by the $classes_array variable. To

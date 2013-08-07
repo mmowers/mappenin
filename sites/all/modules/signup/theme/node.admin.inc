@@ -13,7 +13,7 @@
  * signup_node_admin_page()), and if the node is signup-enabled, the
  * form to signup other users.
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables including:
  *   - 'node': The node object for the signup-enabled node this is a tab on.
  *   - 'signup_node_admin_summary_form': The rendered HTML for the signup node
@@ -125,11 +125,11 @@ function theme_signup_node_admin_details_form($variables) {
  * nested data), so if you override it, be sure not to change the part
  * where it does "call_user_func(__FUNCTION__)".
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables including:
  *   - 'data': Array of custom user signup data.
  *
- * @return
+ * @return string
  *   User data directly formatted in divs.
  *
  * @see theme_signup_user_form()

@@ -27,9 +27,20 @@ Bugs fixed since 6.x-1.0:
 = #1223938 by benjf, sgabe | mariagwyn: Fixed Showing custom signup_user_form()
   fields in views."
 = #1426028 by sgabe: Fixed Edit signup link is not displaying.
+= #1428652 by sgabe | dannymacom: Fixed Adding Views field 'Signup: Node: Signup link'
+  gives error: Undefined Index.
+= #1436906 by sgabe: Fixed Signup administration page is broken.
+= #1457146 by sgabe | ivo_m: Fixed Get the proper date information on the
+  events overview page.
+= #1399178 by jordojuice, sgabe | chaloum: Fixed Ajax error when trying to use
+  the sign up link in a view.
+= #1513076 by sgabe | grendzy: Fixed phptemplate_HOOK is obsolete.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
+
+Other changes since 6.x-1.0:
+= #1286454 by jordojuice | greggles: Remove old updates.
 
 
 ------------------------

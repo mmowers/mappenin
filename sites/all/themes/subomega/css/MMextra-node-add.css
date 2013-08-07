@@ -1,0 +1,62 @@
+/**
+ * @file
+ * Matt Mowers glue styling for front page
+ *
+ */
+
+/**/
+#edit-default-location{
+  font-style: italic;
+}
+
+fieldset.form-wrapper.date-processed{
+  margin-bottom: 0;
+}
+
+.form-item-field-recur-und{
+  margin-top: 0;
+}
+
+#edit-field-time-und-0-value, #edit-field-time-und-0-value2{
+  padding:0;
+  border:none
+}
+#date-from-day, #time-to-date-summary{
+  float:left;
+}
+
+
+/*
+#edit-field-time-und-0-value-hour,
+#edit-field-time-und-0-value-minute,
+#edit-field-time-und-0-value-ampm,
+#from-date-colon,
+#edit-field-time-und-0-value2-hour,
+#edit-field-time-und-0-value2-minute,
+#edit-field-time-und-0-value2-ampm,
+#to-date-colon{
+  clear:none;
+  float: left;
+}
+*/
+#from-date-colon, #to-date-colon{
+  clear: none;
+  float: left;
+}
+
+span.form-item.date-spacer{
+  display: none;
+}
+
+#edit-field-location label{
+  width: 15em;
+}
+
+#addEventMap {
+  width: 100%;
+  max-width: 300px;
+  height: 250px;
+}
+#invalid-address{
+  color:red; 
+}

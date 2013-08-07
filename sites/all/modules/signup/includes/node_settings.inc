@@ -9,19 +9,19 @@
  *
  * This is shared by the settings page and the node edit page.
  *
- * @param $node
+ * @param stdClass $node
  *   The fully loaded node object if we've got it.
- * @param $node_type
+ * @param string $node_type
  *   The type of the node.  When creating new content, the caller can know the
  *   node type, even if $node is NULL.
- * @param $has_date
+ * @param bool $has_date
  *   Boolean flag indicating if this node (or site) has signup-aware
  *   date functionality, which is required for reminder emails to be in
  *   the form.
- * @param $include_buttons
+ * @param bool $include_buttons
  *   Boolean flag indicating if the form should include its own submit buttons.
  *
- * @return
+ * @return array
  *   The form array for the per-node signup settings.
  *
  */
@@ -158,9 +158,9 @@ function signup_node_settings_page($node) {
 /**
  * Submit handler for the per-node signup settings form.
  *
- * @param $form_id
+ * @param string $form_id
  *   The ID of the form being submitted.
- * @param $form_values
+ * @param array $form_values
  *   The constructed form values array of the submitted form.
  */
 function signup_node_settings_form_submit($form, &$form_state) {

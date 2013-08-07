@@ -29,10 +29,10 @@ function signup_site_has_dates() {
 /**
  * Determine which scheduler backend to use for the given node.
  *
- * @param $node
+ * @param stdClass $node
  *   Fully loaded node object to test.
  *
- * @return
+ * @return string
  *   'event' to use the event.module, 'date' for the date.module, or 'none' if
  *   the node is untimed.
  *
@@ -56,10 +56,10 @@ function _signup_get_node_scheduler($node) {
 /**
  * Determine which scheduler backend to use for the given node type.
  *
- * @param $type
+ * @param string $type
  *   Machine-readable name of the node type to test.
  *
- * @return
+ * @return string
  *   'event' to use the event.module, 'date' for the date.module, or 'none' if
  *   the node type is untimed.
  */
@@ -147,19 +147,17 @@ function signup_autoclose_sql($node_type) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Helper function to build the database query for the admin overview page.
  */
-function signup_admin_sql($node_type) {
+function signup_admin_query(&$query, $node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':
-      return _signup_event_admin_sql($node_type);
-
+      _signup_event_admin_query($query, $node_type);
+      break;
     case 'date':
-      return _signup_date_admin_sql($node_type);
-
+      _signup_date_admin_query($query, $node_type);
+      break;
     default:
-      return array();
+      break;
   }
 }
-

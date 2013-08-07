@@ -213,7 +213,12 @@ class gmap_plugin_style_gmap extends views_plugin_style {
           
           $bubbletext = NULL;
           if ($this->options['bubbletextenabled'] && !empty($bubbletext_field_alias) && !empty($row->{$bubbletext_field_alias})) {
-            $bubbletext = $this->rendered_fields[$row_index][$this->options['bubbletextfield']];
+            //MMhack Adding more stuff to bubbletext manually.  Very bad!!! To undo, comment out all that is uncommented from here to MMhackend, and uncomment what is commented
+            //$bubbletext = $this->rendered_fields[$row_index][$this->options['bubbletextfield']];
+            $bubbletext = '<div class="bubbletitle">'.$this->rendered_fields[$row_index]['title'].'</div>'.
+                          '<div class="bubblename">'.$this->rendered_fields[$row_index]['name'].'</div>'.
+                          '<div class="bubbletime">'.$this->rendered_fields[$row_index]['field_time'].'</div>'; 
+            //MMhackend
           }
 
           $marker = array(
@@ -466,6 +471,7 @@ class gmap_plugin_style_gmap extends views_plugin_style {
    * Validate the options form.
    */
   function options_validate(&$form, &$form_state) {
+	parent::options_validate($form, $form_state);
     // Check if highlight color is a valid hex color
     if (!preg_match('/^#[a-f0-9]{6}$/i', $form_state['values']['style_options']['highlight_nodearg_color'])) {
       form_error($form['highlight_nodearg_color'], t('Highlight colour must be a valid hex code in the form #FF0000.'));

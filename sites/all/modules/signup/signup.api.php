@@ -7,9 +7,9 @@
 /**
  * Hook to alter signup data before a signup is inserted or updated.
  *
- * @param $signup
+ * @param stdClass $signup
  *   Reference to the fully-loaded signup object representing the signup.
- * @param $form_values
+ * @param array $form_values
  *   Array of form values (if any) from the signup being inserted or updated.
  */
 function hook_signup_data_alter(&$signup, $form_values) {
@@ -23,16 +23,13 @@ function hook_signup_data_alter(&$signup, $form_values) {
  * {signup_log} table still exists, but the node has already had its signup
  * total decremented.
  *
- * @param $node
+ * @param stdClass $node
  *   The fully-loaded node object that the signup is being canceled from.
- * @param $signup
+ * @param stdClass $signup
  *   An object containing all the known information about the signup being
  *   canceled. Contains all the data from the {signup_log} row representing
  *   the canceled signup. See the schema definition for descriptions of each
  *   field and what they represent.
- *
- * @return
- *   Ignored.
  *
  * @see signup_cancel_signup()
  */
@@ -54,7 +51,7 @@ function hook_signup_cancel($signup, $node) {
 /**
  * Hook invoked after a signup has been inserted.
  *
- * @param $signup
+ * @param stdClass $signup
  *   The fully-loaded signup object representing the new signup.
  */
 function hook_signup_insert($signup) {
@@ -64,7 +61,7 @@ function hook_signup_insert($signup) {
 /**
  * Hook invoked after a signup has been updated.
  *
- * @param $signup
+ * @param stdClass $signup
  *   The fully-loaded signup object representing the updated signup.
  */
 function hook_signup_update($signup) {
@@ -79,12 +76,12 @@ function hook_signup_update($signup) {
  * fields from theme_signup_user_form(), serialized, and stored in the
  * {signup_log} database table.
  *
- * @param $node
+ * @param stdClass $node
  *   Fully-loaded node object being signed up to.
- * @param $account
+ * @param stdClass $account
  *   Full-loaded user object who is signing up.
  *
- * @return
+ * @return array
  *   Keyed array of fields to include in the custom data for this signup. The
  *   keys for the array are used as labels when displaying the field, so they
  *   should be human-readable (and wrapped in t() to allow translation).
@@ -107,11 +104,8 @@ function hook_signup_sign_up($node, $account) {
  * cancels a signup and the signup limit is no longer reached; 2) a signup
  * administrator manually re-opens signups.
  *
- * @param $node
+ * @param stdClass $node
  *   Fully-loaded node object that is now open for signups.
- *
- * @return
- *   Ignored.
  *
  * @see signup_open_signup()
  */
@@ -128,11 +122,8 @@ function hook_signup_open($node) {
  * has a signup limit and the limit is reached; 3) a signup administrator
  * manually closes signups.
  *
- * @param $node
+ * @param stdClass $node
  *   Fully-loaded node object that is now closed for signups.
- *
- * @return
- *   Ignored.
  *
  * @see signup_close_signup()
  */
@@ -149,10 +140,10 @@ function hook_signup_close($node) {
  * implementation of this hook returns TRUE, no signup information will be
  * printed for that node.
  *
- * @param $node
+ * @param stdClass $node
  *   The fully-loaded node object being viewed.
  *
- * @return
+ * @return bool|null
  *   TRUE if you want to prevent signup information from being printed, FALSE
  *   or NULL if the information should be printed.
  *
@@ -177,9 +168,9 @@ function hook_signup_suppress($node) {
  * so if anyone returns TRUE, access is granted. If everyone returns FALSE,
  * access is denied (even if the Signup module would normally grant access).
  *
- * @param $node
+ * @param stdClass $node
  *   The fully-loaded node object where the menu items would be attached.
- * @param $menu_type
+ * @param string $menu_type
  *   String specifying what kind of menu item to test access for. Can be:
  *   'signup': the signup form
  *   'list': the signup attendee listing
@@ -188,7 +179,7 @@ function hook_signup_suppress($node) {
  *          that signups are currently open on the given node).
  *   'broadcast': for the broadcast tab
  *
- * @return
+ * @return bool
  *   TRUE if you want to allow access to the requested menu item, FALSE if you
  *   want to deny access (although if another hook implementation returns
  *   TRUE, that will take precedence), or NULL if you don't care and want to

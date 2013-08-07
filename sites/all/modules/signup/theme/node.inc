@@ -7,13 +7,13 @@
 /**
  * Controls the output displayed if this node is closed for signups.
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables containing:
  *   - 'node': The fully loaded node object.
  *   - 'current_signup': If the user already signed up, an HTML representation
  *     of their current signup information, otherwise an empty string.
  *
- * @return
+ * @return string
  *   Themed output to display for a node with closed signups.
  *
  * @see _signup_node_output()
@@ -31,13 +31,13 @@ function theme_signup_signups_closed($variables) {
 /**
  * Controls the output for anonymous users who can't signup.
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables containing:
  *   - 'anon_login_text': The translated HTML help text telling users to login
  *     (and if allowed on this site, register) so they can signup, including
  *     login/register links.
  *
- * @return
+ * @return string
  *   The themed HTML to display the login (and maybe register) help text.
  */
 function theme_signup_anonymous_user_login_text($variables) {
@@ -49,11 +49,11 @@ function theme_signup_anonymous_user_login_text($variables) {
 /**
  * Return HTML desired at the top of the signup output for a node.
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables containing:
  *   - 'node': The fully loaded node object to generate a header for.
  *
- * @return
+ * @return string
  *   HTML to display at the top of the signup output.
  *
  * @see _signup_node_output()

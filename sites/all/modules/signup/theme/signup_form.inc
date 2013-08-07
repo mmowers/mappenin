@@ -9,7 +9,7 @@
  *
  * To customize this for your site, copy this entire function into
  * your theme's template.php file, rename the function to
- * phptemplate_signup_user_form(), and modify to taste.  Feel free to
+ * THEMENAME_signup_user_form(), and modify to taste.  Feel free to
  * alter any elements in this section, remove them, or add any others.
  *
  * WARNING: If your site allows anonymous signups and you alter the
@@ -33,11 +33,11 @@
  * If you do not want any additional fields, the function can simply
  * return an empty array: "return array();"
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables including:
  *   - 'node': The fully loaded node object where this signup form is appearing.
  *
- * @return
+ * @return array
  *   Array defining the form to present to the user to signup for a node.
  *
  * @see theme_signup_anonymous_username()
@@ -82,12 +82,12 @@ function theme_signup_user_form($variables) {
  * This value is used for the %user_name email token for anonymous users, and
  * also to identify a particular anonymous signup in various places in the UI.
  *
- * @param $variables
+ * @param array $variables
  *   An array of variables including:
  *   - 'form_data': Array of custom signup form values for the current signup.
  *   - 'email': E-mail address of the anonymous user who signed up.
  *
- * @return
+ * @return string
  *   A string with the proper value for the %user_name email token.
  *
  * @see theme_signup_user_form()

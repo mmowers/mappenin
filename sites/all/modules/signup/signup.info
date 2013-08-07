@@ -20,9 +20,9 @@ files[] = views/handlers/signup_handler_filter_signup_user_authenticated.inc
 files[] = views/plugins/signup_plugin_access_user_signup_list.inc
 files[] = views/plugins/signup_plugin_argument_validate_signup_status.inc
 
-; Information added by drupal.org packaging script on 2012-02-04
+; Information added by drupal.org packaging script on 2013-05-25
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "signup"
-datestamp = "1328315578"
+datestamp = "1369453497"
 

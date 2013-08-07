@@ -1,0 +1,150 @@
+<?php
+
+$view = new view;
+$view->name = 'venue_info';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'profile';
+$view->human_name = 'Venue info';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'Venue info';
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['access']['perm'] = 'view any venue profile';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['query_comment'] = FALSE;
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'fields';
+$handler->display->display_options['row_options']['hide_empty'] = 0;
+$handler->display->display_options['row_options']['default_field_elements'] = 1;
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['label'] = 'No Results Venue Info';
+$handler->display->display_options['empty']['area']['empty'] = FALSE;
+$handler->display->display_options['empty']['area']['content'] = 'This venue does not currently have any information on its profile';
+$handler->display->display_options['empty']['area']['format'] = 'plain_text';
+$handler->display->display_options['empty']['area']['tokenize'] = 1;
+/* Relationship: Profile: User uid */
+$handler->display->display_options['relationships']['user']['id'] = 'user';
+$handler->display->display_options['relationships']['user']['table'] = 'profile';
+$handler->display->display_options['relationships']['user']['field'] = 'user';
+$handler->display->display_options['relationships']['user']['label'] = 'Venue';
+$handler->display->display_options['relationships']['user']['required'] = 0;
+/* Field: Profile: Venue picture */
+$handler->display->display_options['fields']['field_ven_pic']['id'] = 'field_ven_pic';
+$handler->display->display_options['fields']['field_ven_pic']['table'] = 'field_data_field_ven_pic';
+$handler->display->display_options['fields']['field_ven_pic']['field'] = 'field_ven_pic';
+$handler->display->display_options['fields']['field_ven_pic']['label'] = '';
+$handler->display->display_options['fields']['field_ven_pic']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['field_ven_pic']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_ven_pic']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_ven_pic']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_ven_pic']['click_sort_column'] = 'fid';
+$handler->display->display_options['fields']['field_ven_pic']['settings'] = array(
+  'image_style' => '',
+  'image_link' => '',
+);
+$handler->display->display_options['fields']['field_ven_pic']['field_api_classes'] = 0;
+/* Field: Profile: Address */
+$handler->display->display_options['fields']['field_ven_loc']['id'] = 'field_ven_loc';
+$handler->display->display_options['fields']['field_ven_loc']['table'] = 'field_data_field_ven_loc';
+$handler->display->display_options['fields']['field_ven_loc']['field'] = 'field_ven_loc';
+$handler->display->display_options['fields']['field_ven_loc']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['field_ven_loc']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_ven_loc']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_ven_loc']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_ven_loc']['field_api_classes'] = 0;
+/* Field: Profile: Additional info */
+$handler->display->display_options['fields']['field_ven_info']['id'] = 'field_ven_info';
+$handler->display->display_options['fields']['field_ven_info']['table'] = 'field_data_field_ven_info';
+$handler->display->display_options['fields']['field_ven_info']['field'] = 'field_ven_info';
+$handler->display->display_options['fields']['field_ven_info']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_ven_info']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_ven_info']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['field_ven_info']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_ven_info']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_ven_info']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_ven_info']['field_api_classes'] = 0;
+/* Contextual filter: User: Uid */
+$handler->display->display_options['arguments']['uid']['id'] = 'uid';
+$handler->display->display_options['arguments']['uid']['table'] = 'users';
+$handler->display->display_options['arguments']['uid']['field'] = 'uid';
+$handler->display->display_options['arguments']['uid']['relationship'] = 'user';
+$handler->display->display_options['arguments']['uid']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['uid']['title_enable'] = 1;
+$handler->display->display_options['arguments']['uid']['title'] = '%1';
+$handler->display->display_options['arguments']['uid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['uid']['default_argument_skip_url'] = 0;
+$handler->display->display_options['arguments']['uid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['uid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['uid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['uid']['break_phrase'] = 0;
+$handler->display->display_options['arguments']['uid']['not'] = 0;
+/* Filter criterion: Profile: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'profile';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+  'venue' => 'venue',
+);
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['path'] = 'venue/%/venue-info';
+$handler->display->display_options['menu']['type'] = 'tab';
+$handler->display->display_options['menu']['title'] = 'Venue Info';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['context'] = 0;
+$handler->display->display_options['tab_options']['type'] = 'normal';
+$handler->display->display_options['tab_options']['title'] = 'Venue info';
+$handler->display->display_options['tab_options']['weight'] = '0';
